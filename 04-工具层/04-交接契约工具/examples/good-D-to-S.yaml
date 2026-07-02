@@ -1,0 +1,51 @@
+# 合法示例：D → S 交接（Spec-Writer 把需求交给 Builder）
+
+handoff:
+  schema_version: "1.0"
+  project: "示例项目"
+  project_code: "DEMO-2026"
+  generated_at: "2026-07-03T10:00:00+08:00"
+  generated_by: "李 Spec-Writer"
+
+  from_stage: D
+  to_stage: S
+  quality_gate: QG-D
+  gate_status: passed
+
+  output_artifacts:
+    - name: "需求分析报告"
+      path: "项目文档/DEMO-2026/D-Discover/需求分析报告-v1.0.md"
+      version: "v1.0"
+    - name: "干系人清单"
+      path: "项目文档/DEMO-2026/D-Discover/干系人清单-v1.0.md"
+      version: "v1.0"
+
+  loop_signs:
+    - stage: D
+      iterations: 3
+      final_eval:
+        requirement_completeness: 0.95
+        scenario_coverage: 0.96
+        stakeholder_signed: 1.0
+      reflect_passed: true
+      exit_met: true
+
+  handoff:
+    to_role: "Builder"
+    from_role: "Spec-Writer"
+
+  tool_used:
+    primary: "Claude Code"
+    adapter: "Claude-Code"
+    notes: "Plan Mode 跑了大纲审批"
+
+  hitl_signature:
+    mode: "In"
+    irreversibility: L3
+    approved_by:
+      - {role: "客户代表", name: "张三", timestamp: "2026-07-03T09:50:00+08:00"}
+      - {role: "Spec-Writer", name: "李四", timestamp: "2026-07-03T09:55:00+08:00"}
+      - {role: "Keeper", name: "王五", timestamp: "2026-07-03T10:00:00+08:00"}
+
+  risk_flags: []
+  notes: "客户对功能优先级有调整，已纳入需求分析报告 v1.0"

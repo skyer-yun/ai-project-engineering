@@ -1,0 +1,26 @@
+# 非法示例：阶段名 + 角色名 + 类型错误
+
+handoff:
+  schema_version: "1.0"
+  project: "示例项目"
+  from_stage: X                  # 非法：只有 D/S/B/Ship/L 合法
+  to_stage: S
+  quality_gate: QG-X             # 非法：只有 QG-D/S/B/Ship 合法
+  gate_status: passed
+
+  output_artifacts: not-a-list   # 应该是 list
+  loop_signs: []
+
+  handoff:
+    to_role: "Coder"             # 非法：不在五角色列表
+    from_role: "BizPerson"       # 非法：不在五角色列表
+
+  tool_used:
+    primary: "AI"                # 工具中立允许任意，但建议具体名
+
+  hitl_signature:
+    mode: "Always"               # 非法：只有 In/On/Fallback 合法
+    irreversibility: L9          # 非法：只有 L1-L4 合法
+    approved_by: "yes"           # 应该是 list
+
+  risk_flags: []

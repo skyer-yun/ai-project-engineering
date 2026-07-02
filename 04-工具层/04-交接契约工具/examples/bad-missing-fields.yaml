@@ -1,0 +1,21 @@
+# 非法示例：缺关键字段 + iterations 非正整数 + 缺下游角色
+
+handoff:
+  schema_version: "1.0"
+  project: "示例项目"
+  # 缺 from_stage / to_stage / quality_gate
+
+  output_artifacts:
+    - name: 源码
+      path: git://repo@v1.0
+      # 缺 version
+
+  loop_signs:
+    - stage: B
+      iterations: 0              # 非法：< 1
+      final_eval: {}
+      reflect_passed: true
+      exit_met: true             # exit_met=true 但缺关键 Eval 指标
+
+  # 缺 handoff (from_role / to_role)
+  # 缺 hitl_signature

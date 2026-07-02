@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>团队工程素养盘点 · Loop 推广准入评估 v2</title>
+<style>
+  :root {
+    --primary: #165DFF;
+    --primary-light: #E8F3FF;
+    --success: #00B42A;
+    --warning: #FF7D00;
+    --danger: #F53F3F;
+    --text-1: #1D2129;
+    --text-2: #4E5969;
+    --text-3: #86909C;
+    --bg: #F7F8FA;
+    --border: #E5E6EB;
+    --card: #FFFFFF;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text-1);
+    line-height: 1.6;
+    padding: 20px;
+    font-size: 14px;
+  }
+  .container { max-width: 1100px; margin: 0 auto; }
+
+  /* Header */
+  header {
+    background: linear-gradient(135deg, var(--primary) 0%, #0E42D2 100%);
+    color: white;
+    padding: 24px 28px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 16px rgba(22, 93, 255, 0.15);
+  }
+  header h1 { font-size: 22px; font-weight: 600; margin-bottom: 6px; }
+  header .subtitle { font-size: 13px; opacity: 0.9; }
+  header .meta { margin-top: 10px; font-size: 12px; opacity: 0.85; }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--card);
+    padding: 6px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    margin-bottom: 18px;
+  }
+  .tab {
+    flex: 1;
+    padding: 10px 16px;
+    background: transparent;
+    border: none;
+    color: var(--text-2);
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  .tab.active {
+    background: var(--primary);
+    color: white;
+  }
+  .tab .count {
+    display: inline-block;
+    background: rgba(255,255,255,0.3);
+    padding: 1px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    margin-left: 6px;
+  }
+  .tab:not(.active) .count {
+    background: var(--bg);
+    color: var(--text-3);
+  }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* Form Card */
+  .form-card, .dim-card, .result-card, .guide, .stats-card, .table-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  .form-card { padding: 18px 22px; margin-bottom: 18px; }
+  .form-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .form-field label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-2);
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  .form-field input, .form-field select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 13px;
+    background: white;
+    color: var(--text-1);
+  }
+  .form-field input:focus, .form-field select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px var(--primary-light);
+  }
+
+  /* Section Title */
+  .section-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-1);
+    margin: 22px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-title::before {
+    content: '';
+    width: 4px;
+    height: 16px;
+    background: var(--primary);
+    border-radius: 2px;
+  }
+  .section-title .badge {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-2);
+    background: var(--bg);
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-left: 6px;
+  }
+
+  /* Dimension Card */
+  .dim-card {
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    transition: border-color 0.2s;
+  }
+  .dim-card:hover { border-color: var(--primary); }
+  .dim-card.scored { border-left: 3px solid var(--primary); }
+  .dim-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+  }
+  .dim-title { font-size: 14px; font-weight: 600; color: var(--text-1); }
+  .dim-tag {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .tag-agile { background: #E8F3FF; color: var(--primary); }
+  .tag-ai { background: #FFF7E8; color: var(--warning); }
+  .dim-desc { font-size: 12px; color: var(--text-3); margin-bottom: 10px; }
+
+  .anchors {
+    background: var(--bg);
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    font-size: 12px;
+  }
+  .anchor-row {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 10px;
+    padding: 3px 0;
+  }
+  .anchor-label { font-weight: 600; color: var(--text-2); }
+  .anchor-row.low .anchor-label { color: var(--danger); }
+  .anchor-row.mid .anchor-label { color: var(--warning); }
+  .anchor-row.high .anchor-label { color: var(--success); }
+  .anchor-text { color: var(--text-2); }
+
+  .score-selector { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .score-pill {
+    width: 38px; height: 32px;
+    border: 1px solid var(--border);
+    background: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-2);
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .score-pill:hover { border-color: var(--primary); color: var(--primary); }
+  .score-pill.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+    transform: scale(1.05);
+  }
+  .score-label { margin-left: 8px; font-size: 12px; color: var(--text-3); }
+
+  /* Result Card */
+  .result-card { padding: 22px 26px; margin: 18px 0; text-align: center; }
+  .result-card.tier-a { border-color: var(--success); background: #F7FFF7; }
+  .result-card.tier-b { border-color: var(--warning); background: #FFFBF5; }
+  .result-card.tier-c { border-color: var(--danger); background: #FFF5F5; }
+  .result-card.unscored { background: var(--bg); }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    text-align: left;
+    align-items: center;
+  }
+  .score-display {
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--text-1);
+    line-height: 1;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+  .score-display .total { font-size: 18px; color: var(--text-3); font-weight: 400; }
+  .tier-label {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    margin: 8px 0;
+  }
+  .tier-a .tier-label { background: var(--success); color: white; }
+  .tier-b .tier-label { background: var(--warning); color: white; }
+  .tier-c .tier-label { background: var(--danger); color: white; }
+
+  .tier-recommendation {
+    text-align: left;
+    background: white;
+    padding: 14px 18px;
+    border-radius: 6px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--text-2);
+  }
+  .tier-recommendation strong { color: var(--text-1); display: block; margin-bottom: 6px; }
+  .tier-recommendation ul { padding-left: 18px; margin-top: 6px; }
+  .tier-recommendation li { margin: 4px 0; }
+
+  .breakdown {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 14px;
+    text-align: left;
+  }
+  .breakdown-item {
+    background: white;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .breakdown-item .name { color: var(--text-2); font-size: 11px; }
+  .breakdown-item .val { font-size: 16px; font-weight: 600; color: var(--primary); }
+
+  /* Buttons */
+  .actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  button {
+    padding: 9px 18px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: #0E42D2; }
+  .btn-secondary { background: white; color: var(--text-2); border: 1px solid var(--border); }
+  .btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
+  .btn-success { background: var(--success); color: white; }
+  .btn-success:hover { background: #009A29; }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-danger:hover { background: #D83030; }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--text-1);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 13px;
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+    z-index: 100;
+  }
+  .toast.show { opacity: 1; }
+
+  /* Radar SVG wrapper */
+  .radar-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+  }
+  .radar-wrapper svg { display: block; }
+
+  /* Team Page: Stats */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    text-align: center;
+  }
+  .stat-card .stat-val {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.1;
+  }
+  .stat-card .stat-label {
+    font-size: 11px;
+    color: var(--text-3);
+    margin-top: 4px;
+  }
+  .stat-card.a .stat-val { color: var(--success); }
+  .stat-card.b .stat-val { color: var(--warning); }
+  .stat-card.c .stat-val { color: var(--danger); }
+
+  /* Team Page: Table */
+  .table-card { padding: 18px 22px; margin-bottom: 18px; }
+  .table-wrapper { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  th, td {
+    padding: 9px 10px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: var(--bg);
+    color: var(--text-2);
+    font-weight: 600;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  tbody tr:hover { background: var(--bg); }
+  td.col-name { text-align: left; font-weight: 500; }
+  .tier-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+  }
+  .tier-tag.a { background: var(--success); }
+  .tier-tag.b { background: var(--warning); }
+  .tier-tag.c { background: var(--danger); }
+  .del-btn {
+    padding: 3px 10px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-3);
+    font-size: 11px;
+    border-radius: 4px;
+  }
+  .del-btn:hover { border-color: var(--danger); color: var(--danger); }
+  .empty-row {
+    text-align: center;
+    color: var(--text-3);
+    padding: 40px;
+    font-size: 13px;
+  }
+
+  /* Team Page: Radar compare */
+  .compare-card {
+    padding: 18px 22px;
+    margin-bottom: 18px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .compare-card h3 {
+    font-size: 14px;
+    color: var(--text-1);
+    margin-bottom: 8px;
+    font-weight: 600;
+    text-align: center;
+  }
+  .compare-card .radar-wrapper { padding: 4px; }
+  .compare-card .radar-hint {
+    grid-column: 1 / -1;
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-3);
+    margin-top: 4px;
+  }
+
+  /* Guide */
+  .guide { padding: 18px 22px; margin-top: 22px; font-size: 13px; color: var(--text-2); }
+  .guide h3 {
+    font-size: 14px;
+    color: var(--text-1);
+    margin-bottom: 10px;
+    margin-top: 14px;
+    font-weight: 600;
+  }
+  .guide h3:first-child { margin-top: 0; }
+  .guide ul { padding-left: 20px; }
+  .guide li { margin: 5px 0; }
+  .guide strong { color: var(--text-1); }
+  .guide .quote {
+    background: var(--bg);
+    padding: 8px 12px;
+    border-left: 3px solid var(--primary);
+    margin: 10px 0;
+    font-style: italic;
+  }
+  .guide code {
+    background: var(--bg);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 12px;
+  }
+
+  /* CSV sample */
+  .csv-sample {
+    background: #1D2129;
+    color: #B3D9FF;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-family: "SFMono-Regular", Consolas, monospace;
+    font-size: 12px;
+    margin: 8px 0;
+    overflow-x: auto;
+  }
+
+  footer {
+    text-align: center;
+    color: var(--text-3);
+    font-size: 12px;
+    margin-top: 28px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 800px) {
+    .form-row { grid-template-columns: repeat(2, 1fr); }
+    .breakdown { grid-template-columns: repeat(2, 1fr); }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .result-grid, .compare-card { grid-template-columns: 1fr; }
+    body { padding: 12px; }
+    header { padding: 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>团队工程素养盘点 · Loop 推广准入评估 v2</h1>
+    <div class="subtitle">3 敏捷 + 3 AI 特有 共 6 维度 · 个人评估 + 团队汇总 + 雷达图 + CSV 批量</div>
+    <div class="meta">配套：《Loop升级版全景图 v1》/《全程 统一阶段定义 v2》 · v2.0 · 2026-06-29</div>
+  </header>
+
+  <div class="tabs">
+    <button class="tab active" id="tab-personal">个人评估</button>
+    <button class="tab" id="tab-team">团队汇总 <span class="count" id="team-count">0</span></button>
+  </div>
+
+  <!-- ============ PAGE 1: 个人评估 ============ -->
+  <div class="page active" id="page-personal">
+
+    <div class="form-card">
+      <div class="form-row">
+        <div class="form-field">
+          <label>被评估人</label>
+          <input type="text" id="emp-name" placeholder="姓名 / 工号">
+        </div>
+        <div class="form-field">
+          <label>评估方式</label>
+          <select id="eval-type">
+            <option value="自评">自评</option>
+            <option value="PM 评">PM 评</option>
+            <option value="主管评">主管评</option>
+            <option value="同事互评">同事互评</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>项目 / 团队</label>
+          <input type="text" id="proj-name" placeholder="项目名或团队名">
+        </div>
+        <div class="form-field">
+          <label>评估日期</label>
+          <input type="date" id="eval-date">
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">
+      敏捷基础维度 <span class="badge">3 项 · 共 15 分</span>
+    </div>
+
+    <div class="dim-card" data-dim="P1">
+      <div class="dim-header">
+        <div><span class="dim-title">P1 · 产物规范度</span><span class="dim-tag tag-agile">敏捷基础</span></div>
+      </div>
+      <div class="dim-desc">输出文档/代码是否结构化、命名规范、版本可追溯</div>
+      <div class="anchors">
+        <div class="anchor-row low"><span class="anchor-label">1 分</span><span class="anchor-text">无模板、命名混乱、无版本号、文件名随手起</span></div>
+        <div class="anchor-row mid"><span class="anchor-label">3 分</span><span class="anchor-text">用统一模板、命名基本规范、偶尔有版本号</span></div>
+        <div class="anchor-row high"><span class="anchor-label">5 分</span><span class="anchor-text">严格遵循模板、语义化版本、变更可追溯（diff/原因）</span></div>
+      </div>
+      <div class="score-selector">
+        <button class="score-pill" data-score="1">1</button>
+        <button class="score-pill" data-score="2">2</button>
+        <button class="score-pill" data-score="3">3</button>
+        <button class="score-pill" data-score="4">4</button>
+        <button class="score-pill" data-score="5">5</button>
+        <span class="score-label">基于最近 2-4 周观察证据</span>
+      </div>
+    </div>
+
+    <div class="dim-card" data-dim="P2">
+      <div class="dim-header">
+        <div><span class="dim-title">P2 · 上下游准入意识</span><span class="dim-tag tag-agile">敏捷基础</span></div>
+      </div>
+      <div class="dim-desc">是否清楚自己产物的下游消费者、上游依赖、变更前评估影响</div>
+      <div class="anchors">
+        <div class="anchor-row low"><span class="anchor-label">1 分</span><span class="anchor-text">不知道下游是谁、交付无标准、变更不打招呼</span></div>
+        <div class="anchor-row mid"><span class="anchor-label">3 分</span><span class="anchor-text">知道下游、有基本准入标准但不稳定、变更偶尔通知</span></div>
+        <div class="anchor-row high"><span class="anchor-label">5 分</span><span class="anchor-text">明确准入标准、主动与下游对齐、变更前评估影响范围</span></div>
+      </div>
+      <div class="score-selector">
+        <button class="score-pill" data-score="1">1</button>
+        <button class="score-pill" data-score="2">2</button>
+        <button class="score-pill" data-score="3">3</button>
+        <button class="score-pill" data-score="4">4</button>
+        <button class="score-pill" data-score="5">5</button>
+        <span class="score-label">点击打分</span>
+      </div>
+    </div>
+
+    <div class="dim-card" data-dim="P3">
+      <div class="dim-header">
+        <div><span class="dim-title">P3 · 质量自检习惯</span><span class="dim-tag tag-agile">敏捷基础</span></div>
+      </div>
+      <div class="dim-desc">交付前是否自查、是否有"完成定义"、自检是否留痕</div>
+      <div class="anchors">
+        <div class="anchor-row low"><span class="anchor-label">1 分</span><span class="anchor-text">交付即完事、不做自检、出问题归咎他人</span></div>
+        <div class="anchor-row mid"><span class="anchor-label">3 分</span><span class="anchor-text">交付前简单自查、无 checklist、靠记忆</span></div>
+        <div class="anchor-row high"><span class="anchor-label">5 分</span><span class="anchor-text">交付前跑 checklist、有 Definition of Done、自检留痕可追溯</span></div>
+      </div>
+      <div class="score-selector">
+        <button class="score-pill" data-score="1">1</button>
+        <button class="score-pill" data-score="2">2</button>
+        <button class="score-pill" data-score="3">3</button>
+        <button class="score-pill" data-score="4">4</button>
+        <button class="score-pill" data-score="5">5</button>
+        <span class="score-label">点击打分</span>
+      </div>
+    </div>
+
+    <div class="section-title">
+      AI 时代新维度 <span class="badge">3 项 · 共 15 分 · Loop 推广关键</span>
+    </div>
+
+    <div class="dim-card" data-dim="A1">
+      <div class="dim-header">
+        <div><span class="dim-title">A1 · Context 工程意识</span><span class="dim-tag tag-ai">AI 特有</span></div>
+      </div>
+      <div class="dim-desc">能否区分关键信息 vs 噪音、能否为 AI 组织好上下文、长上下文不混乱</div>
+      <div class="anchors">
+        <div class="anchor-row low"><span class="anchor-label">1 分</span><span class="anchor-text">信息一锅烩、不分主次、给 AI 一坨原始材料</span></div>
+        <div class="anchor-row mid"><span class="anchor-label">3 分</span><span class="anchor-text">能识别关键信息但不稳定、长对话会丢失重点</span></div>
+        <div class="anchor-row high"><span class="anchor-label">5 分</span><span class="anchor-text">主动组织上下文、能识别噪音、能拆分子任务、能压缩历史</span></div>
+      </div>
+      <div class="score-selector">
+        <button class="score-pill" data-score="1">1</button>
+        <button class="score-pill" data-score="2">2</button>
+        <button class="score-pill" data-score="3">3</button>
+        <button class="score-pill" data-score="4">4</button>
+        <button class="score-pill" data-score="5">5</button>
+        <span class="score-label">点击打分</span>
+      </div>
+    </div>
+
+    <div class="dim-card" data-dim="A2">
+      <div class="dim-header">
+        <div><span class="dim-title">A2 · Eval 设计能力</span><span class="dim-tag tag-ai">AI 特有</span></div>
+      </div>
+      <div class="dim-desc">能否为自己的产物定义"好"的标准、能否量化、能否迭代 rubric</div>
+      <div class="anchors">
+        <div class="anchor-row low"><span class="anchor-label">1 分</span><span class="anchor-text">完全凭感觉判断"好不好"、说不出标准</span></div>
+        <div class="anchor-row mid"><span class="anchor-label">3 分</span><span class="anchor-text">能描述好坏但无量化、无 rubric、标准因人而异</span></div>
+        <div class="anchor-row high"><span class="anchor-label">5 分</span><span class="anchor-text">能为产物定义量化 Eval、有 rubric、迭代过、可复用</span></div>
+      </div>
+      <div class="score-selector">
+        <button class="score-pill" data-score="1">1</button>
+        <button class="score-pill" data-score="2">2</button>
+        <button class="score-pill" data-score="3">3</button>
+        <button class="score-pill" data-score="4">4</button>
+        <button class="score-pill" data-score="5">5</button>
+        <span class="score-label">点击打分</span>
+      </div>
+    </div>
+
+    <div class="dim-card" data-dim="A3">
+      <div class="dim-header">
+        <div><span class="dim-title">A3 · 工具规范使用</span><span class="dim-tag tag-ai">AI 特有</span></div>
+      </div>
+      <div class="dim-desc">是否愿意接受工具强制约束、是否主动用 hooks/Plan Mode/atomic commit、是否绕过规范</div>
+      <div class="anchors">
+        <div class="anchor-row low"><span class="anchor-label">1 分</span><span class="anchor-text">不学工具、凭直觉用、遇到约束就绕过（--no-verify）</span></div>
+        <div class="anchor-row mid"><span class="anchor-label">3 分</span><span class="anchor-text">用工具基本功能、不主动配置约束、偶尔偷懒</span></div>
+        <div class="anchor-row high"><span class="anchor-label">5 分</span><span class="anchor-text">主动用 Plan Mode/Hooks/atomic commit、不绕过、还会教同事</span></div>
+      </div>
+      <div class="score-selector">
+        <button class="score-pill" data-score="1">1</button>
+        <button class="score-pill" data-score="2">2</button>
+        <button class="score-pill" data-score="3">3</button>
+        <button class="score-pill" data-score="4">4</button>
+        <button class="score-pill" data-score="5">5</button>
+        <span class="score-label">点击打分</span>
+      </div>
+    </div>
+
+    <div class="section-title">个人评估结果</div>
+    <div class="result-card unscored" id="result-card">
+      <div class="result-grid">
+        <div>
+          <div class="score-display">
+            <span id="score-num">—</span><span class="total"> / 30</span>
+          </div>
+          <div id="tier-area">
+            <div class="tier-label" style="background: var(--text-3); color: white;">待评估</div>
+            <div class="tier-recommendation">
+              <strong>请完成上述 6 个维度打分</strong>
+              完成后显示分级、推广建议和个人雷达图。
+            </div>
+          </div>
+        </div>
+        <div class="radar-wrapper" id="personal-radar">
+          <svg width="320" height="320" viewBox="0 0 320 320" id="radar-personal"></svg>
+        </div>
+      </div>
+      <div class="breakdown" id="breakdown" style="display:none;"></div>
+      <div class="actions">
+        <button class="btn btn-success" id="btn-save" disabled>保存到团队汇总</button>
+        <button class="btn btn-primary" id="btn-copy" disabled>复制结果（Markdown）</button>
+        <button class="btn btn-secondary" id="btn-reset">重置</button>
+      </div>
+    </div>
+
+    <div class="guide">
+      <h3>如何评估（避免凭印象打分）</h3>
+      <ul>
+        <li><strong>基于观察证据</strong>：只看最近 2-4 周的实际表现，不要预测潜力。</li>
+        <li><strong>多人交叉评估</strong>：建议自评 + 主管评 + 同事评三份对照，差异 ≥ 2 分的维度需要校准对话。</li>
+        <li><strong>避免光环效应</strong>：6 个维度独立打分，不要因为某个维度高分就连带其他维度也打高。</li>
+        <li><strong>诚实优先</strong>：5 分代表"稳定可复现"，3 分是"基本合格但有波动"。</li>
+      </ul>
+      <div class="quote">
+        工程素养是 1，AI 工具是后面的 0。<br>
+        10、100、1000 — AI 越多产出越大；00、000 — 没有工程素养底子，AI 加再多 0 还是 0。
+      </div>
+      <h3>三档分级与推广动作</h3>
+      <ul>
+        <li><strong style="color:var(--success)">A 档 25-30（直接 Loop 推广）</strong>：W1 试点直接入选</li>
+        <li><strong style="color:var(--warning)">B 档 18-24（先强制规范）</strong>：Plan Mode/Hooks 1-2 周拉到 A 档</li>
+        <li><strong style="color:var(--danger)">C 档 &lt; 18（先抓敏捷基础）</strong>：AI 暂缓，先抓 P1-P3</li>
+      </ul>
+      <h3>关于这 6 个维度</h3>
+      <ul>
+        <li><strong>敏捷基础（P1-P3）</strong>：决定团队工程素养的"1"是否在</li>
+        <li><strong>AI 特有（A1-A3）</strong>：决定 AI 那 30% 新工具能不能用起来</li>
+        <li><strong>组合判断</strong>：P 高 A 低 → 补 AI 训练即可；<strong>A 高 P 低 → 反而危险</strong>（会用工具但工程素养不够，产出快但乱）</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============ PAGE 2: 团队汇总 ============ -->
+  <div class="page" id="page-team">
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-val" id="stat-total" style="color: var(--text-1);">0</div>
+        <div class="stat-label">总评估人数</div>
+      </div>
+      <div class="stat-card a">
+        <div class="stat-val" id="stat-a">0</div>
+        <div class="stat-label">A 档（25-30）直接试点</div>
+      </div>
+      <div class="stat-card b">
+        <div class="stat-val" id="stat-b">0</div>
+        <div class="stat-label">B 档（18-24）先规范</div>
+      </div>
+      <div class="stat-card c">
+        <div class="stat-val" id="stat-c">0</div>
+        <div class="stat-label">C 档（&lt;18）抓基础</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val" id="stat-avg" style="color: var(--primary);">—</div>
+        <div class="stat-label">平均分</div>
+      </div>
+    </div>
+
+    <div class="compare-card">
+      <div>
+        <h3>团队平均雷达图</h3>
+        <div class="radar-wrapper">
+          <svg width="340" height="340" viewBox="0 0 340 340" id="radar-team-avg"></svg>
+        </div>
+      </div>
+      <div>
+        <h3>全员叠加雷达图（看离散度）</h3>
+        <div class="radar-wrapper">
+          <svg width="340" height="340" viewBox="0 0 340 340" id="radar-team-all"></svg>
+        </div>
+      </div>
+      <div class="radar-hint" id="radar-hint">无数据。先在「个人评估」页保存至少 1 份，或下方 CSV 批量导入。</div>
+    </div>
+
+    <div class="table-card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+        <h3 style="font-size:15px; font-weight:600; color:var(--text-1);">评估明细列表</h3>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <input type="file" id="csv-file" accept=".csv" style="display:none;">
+          <button class="btn btn-secondary" id="btn-download-template">下载 CSV 模板</button>
+          <button class="btn btn-secondary" id="btn-import-csv">批量导入 CSV</button>
+          <button class="btn btn-primary" id="btn-export-csv">导出全部 CSV</button>
+          <button class="btn btn-danger" id="btn-clear-all">清空全部</button>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table id="team-table">
+          <thead>
+            <tr>
+              <th>姓名</th>
+              <th>评估方式</th>
+              <th>项目/团队</th>
+              <th>日期</th>
+              <th>P1</th><th>P2</th><th>P3</th>
+              <th>A1</th><th>A2</th><th>A3</th>
+              <th>总分</th>
+              <th>档位</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="team-tbody">
+            <tr><td colspan="13" class="empty-row">暂无数据。在「个人评估」页填好后点「保存到团队汇总」，或上方「批量导入 CSV」。</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="guide">
+      <h3>CSV 格式说明</h3>
+      <p style="margin-bottom:8px;">表头字段必须按此顺序，列名大小写敏感：</p>
+      <div class="csv-sample">姓名,评估方式,项目,P1,P2,P3,A1,A2,A3,日期
+张三,自评,中台项目,4,3,4,3,2,4,2026-06-29
+李四,主管评,中台项目,5,5,5,4,4,5,2026-06-29
+王五,同事评,中台项目,3,2,3,2,2,3,2026-06-29</div>
+      <ul>
+        <li><strong>P1-P3 / A1-A3</strong>：1-5 整数，超出范围自动裁剪</li>
+        <li><strong>评估方式</strong>：自评 / PM 评 / 主管评 / 同事互评（可自定义）</li>
+        <li><strong>日期</strong>：YYYY-MM-DD 格式，可空（默认今天）</li>
+        <li><strong>姓名/项目</strong>：必填，空字符串会被标记为"未填"</li>
+        <li><strong>Excel 编辑后另存为 CSV UTF-8</strong>，否则中文乱码</li>
+      </ul>
+      <h3>团队盘点使用流程</h3>
+      <ul>
+        <li><strong>W0（推广前 1 周）</strong>：每个候选试点人员自评 1 份 + 主管评 1 份 + PM 抽样评 5-8 份</li>
+        <li><strong>校准会议</strong>：自评 vs 主管评差异 ≥ 2 分的维度公开讨论</li>
+        <li><strong>W1 试点选人</strong>：只从 A 档（25+）中挑；B/C 档不入选</li>
+        <li><strong>W4 复盘</strong>：再评估一次，对比 W0 数据，看团队工程素养水位变化</li>
+      </ul>
+      <h3>数据存储说明</h3>
+      <ul>
+        <li>所有数据存储在浏览器 <code>localStorage</code>（key：<code>team-skill-assessment-v2</code>），刷新不丢</li>
+        <li>不同浏览器数据不互通，需手动导出 CSV 在不同设备间转移</li>
+        <li>清空浏览器数据会丢失，重要数据请定期导出 CSV 归档</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <footer>
+    团队工程素养盘点工具 v2.0 · 单文件 HTML 自包含 · 数据本地存储不上传 · 基于 Loop Engineering 业界共识
+  </footer>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============ Data Model ============
+const DIMENSIONS = ['P1','P2','P3','A1','A2','A3'];
+const DIM_NAMES = {
+  P1: '产物规范', P2: '上下游准入', P3: '质量自检',
+  A1: 'Context', A2: 'Eval', A3: '工具规范'
+};
+const STORAGE_KEY = 'team-skill-assessment-v2';
+
+let currentScores = { P1:0, P2:0, P3:0, A1:0, A2:0, A3:0 };
+let teamData = loadTeam();
+
+const TIERS = [
+  { min: 25, key: 'a', name: 'A 档 · 直接 Loop 推广', color: 'success',
+    rec: '<strong>推荐动作</strong><ul>' +
+      '<li>W1 直接入选试点（研发/测试任一工种）</li>' +
+      '<li>无需额外培训，给 Playbook 即用</li>' +
+      '<li>承担"放大器示范"角色，向 B 档同事辐射</li>' +
+      '<li>W4 度量时作为基线对照组</li></ul>' },
+  { min: 18, key: 'b', name: 'B 档 · 先强制规范', color: 'warning',
+    rec: '<strong>推荐动作</strong><ul>' +
+      '<li>暂缓直接试点，先抓工具强制规范 1-2 周</li>' +
+      '<li>启用 Claude Code Plan Mode（不可绕过）</li>' +
+      '<li>启用 Git atomic commit + PreToolUse hook</li>' +
+      '<li>每两周复评，达到 A 档（25+）后纳入试点</li></ul>' },
+  { min: 0, key: 'c', name: 'C 档 · 先抓敏捷基础', color: 'danger',
+    rec: '<strong>推荐动作</strong><ul>' +
+      '<li>AI 工具暂缓（避免放大混乱）</li>' +
+      '<li>先抓 P1-P3 敏捷基础：模板、命名、版本、上下游准入、自检 checklist</li>' +
+      '<li>安排 A 档同事 mentor，从产物规范开始</li>' +
+      '<li>1 个月后复评 P 维度，P1-P3 平均 ≥ 3 分后再启动 AI 训练</li>' +
+      '<li>注意：A 高 P 低者特别警惕（会用工具但工程素养不够，产出快但乱）</li></ul>' },
+];
+
+function getTier(total) { return TIERS.find(t => total >= t.min); }
+function calcTotal(s) { return DIMENSIONS.reduce((a, k) => a + (s[k]||0), 0); }
+function calcAgile(s) { return s.P1 + s.P2 + s.P3; }
+function calcAI(s) { return s.A1 + s.A2 + s.A3; }
+
+function loadTeam() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch { return []; }
+}
+function saveTeam() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(teamData));
+}
+
+// ============ Init ============
+document.getElementById('eval-date').valueAsDate = new Date();
+renderTeam();
+
+// ============ Tab Switch ============
+document.getElementById('tab-personal').addEventListener('click', () => switchTab('personal'));
+document.getElementById('tab-team').addEventListener('click', () => switchTab('team'));
+
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  if (name === 'personal') {
+    document.getElementById('tab-personal').classList.add('active');
+    document.getElementById('page-personal').classList.add('active');
+  } else {
+    document.getElementById('tab-team').classList.add('active');
+    document.getElementById('page-team').classList.add('active');
+    renderTeam();
+  }
+}
+
+// ============ Personal Score Pills ============
+document.querySelectorAll('.dim-card').forEach(card => {
+  const dim = card.dataset.dim;
+  card.querySelectorAll('.score-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      currentScores[dim] = parseInt(pill.dataset.score);
+      card.querySelectorAll('.score-pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      card.classList.add('scored');
+      updatePersonalResult();
+    });
+  });
+});
+
+function updatePersonalResult() {
+  const total = calcTotal(currentScores);
+  const allScored = DIMENSIONS.every(k => currentScores[k] > 0);
+
+  document.getElementById('score-num').textContent = allScored ? total : (total + '（部分）');
+
+  const card = document.getElementById('result-card');
+  card.classList.remove('tier-a', 'tier-b', 'tier-c', 'unscored');
+
+  if (!allScored) {
+    card.classList.add('unscored');
+    document.getElementById('btn-copy').disabled = true;
+    document.getElementById('btn-save').disabled = true;
+    drawRadar('radar-personal', null);
+    return;
+  }
+
+  const tier = getTier(total);
+  card.classList.add('tier-' + tier.key);
+  document.getElementById('btn-copy').disabled = false;
+  document.getElementById('btn-save').disabled = false;
+
+  document.getElementById('tier-area').innerHTML =
+    '<div class="tier-label">' + tier.name + '</div>' +
+    '<div class="tier-recommendation">' + tier.rec + '</div>';
+
+  // Breakdown
+  const breakdown = document.getElementById('breakdown');
+  breakdown.style.display = 'grid';
+  breakdown.innerHTML = DIMENSIONS.map(k => {
+    const s = currentScores[k];
+    const cls = s >= 4 ? 'success' : s >= 3 ? 'warning' : 'danger';
+    return '<div class="breakdown-item">' +
+      '<div class="name">' + k + ' ' + DIM_NAMES[k] + '</div>' +
+      '<div class="val" style="color: var(--' + cls + ');">' + s + ' / 5</div>' +
+    '</div>';
+  }).join('');
+
+  // Radar
+  drawRadar('radar-personal', currentScores);
+}
+
+// ============ Radar Drawing (SVG native) ============
+function drawRadar(svgId, scores, options = {}) {
+  const svg = document.getElementById(svgId);
+  if (!svg) return;
+  // Clear
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+  const cx = svg.viewBox.baseVal.width / 2;
+  const cy = svg.viewBox.baseVal.height / 2;
+  const maxR = Math.max(20, Math.min(cx, cy) - 60);
+
+  const angles = DIMENSIONS.map((_, i) => (-90 + i * 60) * Math.PI / 180);
+
+  const ns = 'http://www.w3.org/2000/svg';
+
+  function el(tag, attrs) {
+    const e = document.createElementNS(ns, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  // Background grid (5 levels)
+  for (let level = 5; level >= 1; level--) {
+    const r = (maxR * level) / 5;
+    const pts = angles.map(a => `${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`).join(' ');
+    svg.appendChild(el('polygon', {
+      points: pts,
+      fill: level === 5 ? '#FAFBFC' : 'none',
+      stroke: '#E5E6EB',
+      'stroke-width': 1
+    }));
+  }
+
+  // Axes
+  angles.forEach(a => {
+    svg.appendChild(el('line', {
+      x1: cx, y1: cy,
+      x2: (cx + maxR * Math.cos(a)).toFixed(1),
+      y2: (cy + maxR * Math.sin(a)).toFixed(1),
+      stroke: '#E5E6EB', 'stroke-width': 1
+    }));
+  });
+
+  // Labels
+  DIMENSIONS.forEach((dim, i) => {
+    const r = maxR + 28;
+    const lx = cx + r * Math.cos(angles[i]);
+    const ly = cy + r * Math.sin(angles[i]);
+    const anchor = Math.abs(lx - cx) < 5 ? 'middle' : (lx > cx ? 'start' : 'end');
+    const text = el('text', {
+      x: lx.toFixed(1), y: ly.toFixed(1),
+      'text-anchor': anchor, 'dominant-baseline': 'middle',
+      'font-size': 11, fill: '#4E5969', 'font-family': 'inherit'
+    });
+    text.textContent = dim + ' ' + DIM_NAMES[dim];
+    svg.appendChild(text);
+  });
+
+  // Score scale (1-5 markers on first axis)
+  for (let level = 1; level <= 5; level++) {
+    const r = (maxR * level) / 5;
+    const lx = cx + r * Math.cos(angles[0]);
+    const ly = cy + r * Math.sin(angles[0]);
+    const t = el('text', {
+      x: (lx + 6).toFixed(1), y: (ly + 3).toFixed(1),
+      'font-size': 9, fill: '#C9CDD4'
+    });
+    t.textContent = level;
+    svg.appendChild(t);
+  }
+
+  if (!scores) return;
+
+  // Data polygon
+  const dataPoints = DIMENSIONS.map((d, i) => {
+    const score = scores[d] || 0;
+    const r = (score / 5) * maxR;
+    return [cx + r * Math.cos(angles[i]), cy + r * Math.sin(angles[i])];
+  });
+  const dataStr = dataPoints.map(p => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+
+  svg.appendChild(el('polygon', {
+    points: dataStr,
+    fill: options.fill || 'rgba(22,93,255,0.2)',
+    stroke: options.stroke || '#165DFF',
+    'stroke-width': 2
+  }));
+
+  if (!options.noDots) {
+    dataPoints.forEach(p => {
+      svg.appendChild(el('circle', {
+        cx: p[0].toFixed(1), cy: p[1].toFixed(1), r: 4,
+        fill: options.stroke || '#165DFF'
+      }));
+    });
+  }
+}
+
+// Draw empty personal radar initially
+drawRadar('radar-personal', null);
+
+// ============ Save to Team ============
+document.getElementById('btn-save').addEventListener('click', () => {
+  if (!DIMENSIONS.every(k => currentScores[k] > 0)) {
+    showToast('请完成所有 6 个维度打分');
+    return;
+  }
+  const emp = document.getElementById('emp-name').value.trim() || '（未填）';
+  const type = document.getElementById('eval-type').value;
+  const proj = document.getElementById('proj-name').value.trim() || '（未填）';
+  const date = document.getElementById('eval-date').value || new Date().toISOString().slice(0,10);
+
+  // Check duplicate (same name + type + proj + date)
+  const isDup = teamData.some(a =>
+    a.empName === emp && a.evalType === type &&
+    a.projectName === proj && a.evalDate === date
+  );
+  if (isDup) {
+    if (!confirm('已存在相同姓名/评估方式/项目/日期的记录，覆盖吗？')) return;
+    teamData = teamData.filter(a =>
+      !(a.empName === emp && a.evalType === type && a.projectName === proj && a.evalDate === date)
+    );
+  }
+
+  const record = {
+    id: 'r' + Date.now() + Math.random().toString(36).slice(2,6),
+    empName: emp, evalType: type, projectName: proj, evalDate: date,
+    scores: { ...currentScores },
+    total: calcTotal(currentScores),
+    agileTotal: calcAgile(currentScores),
+    aiTotal: calcAI(currentScores),
+    tier: getTier(calcTotal(currentScores)).key,
+    timestamp: Date.now()
+  };
+  teamData.push(record);
+  saveTeam();
+  showToast('已保存到团队汇总（共 ' + teamData.length + ' 份）');
+  document.getElementById('team-count').textContent = teamData.length;
+});
+
+// ============ Copy Markdown ============
+document.getElementById('btn-copy').addEventListener('click', () => {
+  const total = calcTotal(currentScores);
+  const tier = getTier(total);
+  const emp = document.getElementById('emp-name').value || '（未填）';
+  const type = document.getElementById('eval-type').value;
+  const proj = document.getElementById('proj-name').value || '（未填）';
+  const date = document.getElementById('eval-date').value;
+
+  let md = '## 团队工程素养盘点结果\n\n';
+  md += '- **被评估人**：' + emp + '\n- **评估方式**：' + type + '\n';
+  md += '- **项目/团队**：' + proj + '\n- **评估日期**：' + date + '\n';
+  md += '- **总分**：' + total + ' / 30（' + tier.name + '）\n';
+  md += '- **敏捷基础 P**：' + calcAgile(currentScores) + ' / 15\n';
+  md += '- **AI 特有 A**：' + calcAI(currentScores) + ' / 15\n\n';
+  md += '### 维度明细\n\n| 维度 | 得分 |\n|---|---|\n';
+  DIMENSIONS.forEach(k => {
+    md += '| ' + k + ' ' + DIM_NAMES[k] + ' | ' + currentScores[k] + ' / 5 |\n';
+  });
+
+  copyToClipboard(md);
+  showToast('Markdown 已复制');
+});
+
+// ============ Reset ============
+document.getElementById('btn-reset').addEventListener('click', () => {
+  if (!confirm('确认清空当前页所有打分？已保存到团队的数据不受影响。')) return;
+  DIMENSIONS.forEach(k => currentScores[k] = 0);
+  document.querySelectorAll('.score-pill').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.dim-card').forEach(c => c.classList.remove('scored'));
+  document.getElementById('emp-name').value = '';
+  document.getElementById('proj-name').value = '';
+  document.getElementById('eval-date').valueAsDate = new Date();
+  updatePersonalResult();
+  showToast('已重置');
+});
+
+// ============ Team Page Render ============
+function renderTeam() {
+  document.getElementById('team-count').textContent = teamData.length;
+
+  // Stats
+  const a = teamData.filter(r => r.tier === 'a').length;
+  const b = teamData.filter(r => r.tier === 'b').length;
+  const c = teamData.filter(r => r.tier === 'c').length;
+  const avg = teamData.length ? (teamData.reduce((s, r) => s + r.total, 0) / teamData.length).toFixed(1) : '—';
+
+  document.getElementById('stat-total').textContent = teamData.length;
+  document.getElementById('stat-a').textContent = a;
+  document.getElementById('stat-b').textContent = b;
+  document.getElementById('stat-c').textContent = c;
+  document.getElementById('stat-avg').textContent = avg;
+
+  // Table
+  const tbody = document.getElementById('team-tbody');
+  if (!teamData.length) {
+    tbody.innerHTML = '<tr><td colspan="13" class="empty-row">暂无数据。在「个人评估」页填好后点「保存到团队汇总」，或上方「批量导入 CSV」。</td></tr>';
+  } else {
+    tbody.innerHTML = teamData.slice().sort((x,y) => y.total - x.total).map(r => {
+      return '<tr>' +
+        '<td class="col-name">' + escapeHtml(r.empName) + '</td>' +
+        '<td>' + escapeHtml(r.evalType) + '</td>' +
+        '<td>' + escapeHtml(r.projectName) + '</td>' +
+        '<td>' + escapeHtml(r.evalDate) + '</td>' +
+        '<td>' + r.scores.P1 + '</td><td>' + r.scores.P2 + '</td><td>' + r.scores.P3 + '</td>' +
+        '<td>' + r.scores.A1 + '</td><td>' + r.scores.A2 + '</td><td>' + r.scores.A3 + '</td>' +
+        '<td style="font-weight:600;">' + r.total + '</td>' +
+        '<td><span class="tier-tag ' + r.tier + '">' + r.tier.toUpperCase() + '</span></td>' +
+        '<td><button class="del-btn" data-id="' + r.id + '">删除</button></td>' +
+      '</tr>';
+    }).join('');
+
+    tbody.querySelectorAll('.del-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!confirm('删除该条记录？')) return;
+        teamData = teamData.filter(r => r.id !== btn.dataset.id);
+        saveTeam();
+        renderTeam();
+        showToast('已删除');
+      });
+    });
+  }
+
+  // Radar charts
+  const hint = document.getElementById('radar-hint');
+  if (!teamData.length) {
+    drawRadar('radar-team-avg', null);
+    drawRadar('radar-team-all', null);
+    hint.style.display = 'block';
+    return;
+  }
+  hint.style.display = 'none';
+
+  // Average radar
+  const avgScores = {};
+  DIMENSIONS.forEach(k => {
+    avgScores[k] = teamData.reduce((s, r) => s + r.scores[k], 0) / teamData.length;
+  });
+  drawRadar('radar-team-avg', avgScores, { fill: 'rgba(22,93,255,0.25)', stroke: '#165DFF' });
+
+  // All overlay
+  drawRadarAll('radar-team-all', teamData);
+}
+
+function drawRadarAll(svgId, records) {
+  const svg = document.getElementById(svgId);
+  while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+  const cx = svg.viewBox.baseVal.width / 2;
+  const cy = svg.viewBox.baseVal.height / 2;
+  const maxR = Math.max(20, Math.min(cx, cy) - 60);
+  const angles = DIMENSIONS.map((_, i) => (-90 + i * 60) * Math.PI / 180);
+  const ns = 'http://www.w3.org/2000/svg';
+
+  function el(tag, attrs) {
+    const e = document.createElementNS(ns, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+
+  // Background grid
+  for (let level = 5; level >= 1; level--) {
+    const r = (maxR * level) / 5;
+    const pts = angles.map(a => `${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`).join(' ');
+    svg.appendChild(el('polygon', {
+      points: pts, fill: level === 5 ? '#FAFBFC' : 'none',
+      stroke: '#E5E6EB', 'stroke-width': 1
+    }));
+  }
+  angles.forEach(a => {
+    svg.appendChild(el('line', {
+      x1: cx, y1: cy,
+      x2: (cx + maxR * Math.cos(a)).toFixed(1),
+      y2: (cy + maxR * Math.sin(a)).toFixed(1),
+      stroke: '#E5E6EB', 'stroke-width': 1
+    }));
+  });
+  DIMENSIONS.forEach((dim, i) => {
+    const r = maxR + 28;
+    const lx = cx + r * Math.cos(angles[i]);
+    const ly = cy + r * Math.sin(angles[i]);
+    const anchor = Math.abs(lx - cx) < 5 ? 'middle' : (lx > cx ? 'start' : 'end');
+    const text = el('text', {
+      x: lx.toFixed(1), y: ly.toFixed(1),
+      'text-anchor': anchor, 'dominant-baseline': 'middle',
+      'font-size': 11, fill: '#4E5969', 'font-family': 'inherit'
+    });
+    text.textContent = dim + ' ' + DIM_NAMES[dim];
+    svg.appendChild(text);
+  });
+
+  // Each person
+  const colors = ['rgba(22,93,255,0.12)', 'rgba(255,125,0,0.12)', 'rgba(0,180,42,0.12)', 'rgba(245,63,63,0.12)', 'rgba(114,46,209,0.12)'];
+  const strokes = ['#165DFF', '#FF7D00', '#00B42A', '#F53F3F', '#722ED1'];
+  records.forEach((r, idx) => {
+    const color = colors[idx % colors.length];
+    const stroke = strokes[idx % strokes.length];
+    const dataPoints = DIMENSIONS.map((d, i) => {
+      const score = r.scores[d] || 0;
+      const rad = (score / 5) * maxR;
+      return [cx + rad * Math.cos(angles[i]), cy + rad * Math.sin(angles[i])];
+    });
+    const dataStr = dataPoints.map(p => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+    svg.appendChild(el('polygon', {
+      points: dataStr, fill: color, stroke: stroke, 'stroke-width': 1.5,
+      'stroke-opacity': 0.7
+    }));
+  });
+}
+
+// ============ CSV Import / Export ============
+document.getElementById('btn-download-template').addEventListener('click', () => {
+  const csv = '姓名,评估方式,项目,P1,P2,P3,A1,A2,A3,日期\n' +
+    '张三,自评,中台项目,4,3,4,3,2,4,2026-06-29\n' +
+    '李四,主管评,中台项目,5,5,5,4,4,5,2026-06-29\n' +
+    '王五,同事评,中台项目,3,2,3,2,2,3,2026-06-29\n';
+  downloadCsv(csv, '工程素养盘点-模板.csv');
+  showToast('模板已下载');
+});
+
+document.getElementById('btn-import-csv').addEventListener('click', () => {
+  document.getElementById('csv-file').click();
+});
+
+document.getElementById('csv-file').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const text = ev.target.result;
+      const records = parseCsv(text);
+      if (!records.length) {
+        showToast('CSV 解析失败：未找到有效记录');
+        return;
+      }
+      let added = 0, skipped = 0;
+      records.forEach(rec => {
+        if (!rec) { skipped++; return; }
+        teamData.push(rec);
+        added++;
+      });
+      saveTeam();
+      renderTeam();
+      showToast('已导入 ' + added + ' 条（跳过 ' + skipped + ' 条）');
+    } catch (err) {
+      showToast('CSV 解析错误：' + err.message);
+    }
+    e.target.value = '';
+  };
+  reader.readAsText(file, 'UTF-8');
+});
+
+function parseCsv(text) {
+  // Normalize line endings, strip BOM
+  text = text.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const lines = text.split('\n').filter(l => l.trim());
+  if (lines.length < 2) return [];
+
+  // Simple CSV parser supporting quoted values
+  function parseLine(line) {
+    const result = [];
+    let cur = '', inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') {
+        if (inQuotes && line[i+1] === '"') { cur += '"'; i++; }
+        else inQuotes = !inQuotes;
+      } else if (ch === ',' && !inQuotes) {
+        result.push(cur); cur = '';
+      } else cur += ch;
+    }
+    result.push(cur);
+    return result.map(s => s.trim());
+  }
+
+  const header = parseLine(lines[0]).map(h => h.toLowerCase());
+  const idx = {};
+  ['姓名','评估方式','项目','P1','P2','P3','A1','A2','A3','日期'].forEach(f => {
+    idx[f] = header.indexOf(f.toLowerCase());
+  });
+
+  const records = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cols = parseLine(lines[i]);
+    if (cols.length < 6) continue;
+
+    function getField(name, defaultVal = '') {
+      const ii = idx[name];
+      return (ii >= 0 && cols[ii] !== undefined) ? cols[ii] : defaultVal;
+    }
+    function getScore(name) {
+      const ii = idx[name];
+      if (ii < 0) return 0;
+      let v = parseInt(cols[ii]);
+      if (isNaN(v)) return 0;
+      return Math.max(1, Math.min(5, v));
+    }
+
+    const scores = {
+      P1: getScore('P1'), P2: getScore('P2'), P3: getScore('P3'),
+      A1: getScore('A1'), A2: getScore('A2'), A3: getScore('A3')
+    };
+    if (DIMENSIONS.every(k => scores[k] === 0)) continue;
+
+    const total = calcTotal(scores);
+    records.push({
+      id: 'r' + Date.now() + '_' + i + '_' + Math.random().toString(36).slice(2,5),
+      empName: getField('姓名') || '（未填）',
+      evalType: getField('评估方式') || '自评',
+      projectName: getField('项目') || '（未填）',
+      evalDate: getField('日期') || new Date().toISOString().slice(0,10),
+      scores: scores,
+      total: total,
+      agileTotal: calcAgile(scores),
+      aiTotal: calcAI(scores),
+      tier: getTier(total).key,
+      timestamp: Date.now()
+    });
+  }
+  return records;
+}
+
+document.getElementById('btn-export-csv').addEventListener('click', () => {
+  if (!teamData.length) {
+    showToast('暂无数据可导出');
+    return;
+  }
+  let csv = '姓名,评估方式,项目,P1,P2,P3,A1,A2,A3,日期,敏捷小计,AI小计,总分,档位\n';
+  teamData.forEach(r => {
+    const row = [
+      r.empName, r.evalType, r.projectName,
+      r.scores.P1, r.scores.P2, r.scores.P3,
+      r.scores.A1, r.scores.A2, r.scores.A3,
+      r.evalDate, r.agileTotal, r.aiTotal, r.total, r.tier.toUpperCase()
+    ];
+    csv += row.map(v => {
+      const s = String(v);
+      return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }).join(',') + '\n';
+  });
+  downloadCsv(csv, '工程素养盘点-全部-' + new Date().toISOString().slice(0,10) + '.csv');
+  showToast('已导出 ' + teamData.length + ' 条');
+});
+
+function downloadCsv(content, filename) {
+  // Prepend BOM for Excel UTF-8 compatibility
+  const blob = new Blob(['\uFEFF' + content], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ============ Clear All ============
+document.getElementById('btn-clear-all').addEventListener('click', () => {
+  if (!teamData.length) {
+    showToast('已经是空的');
+    return;
+  }
+  if (!confirm('确认清空全部 ' + teamData.length + ' 条记录？此操作不可撤销。建议先导出 CSV 备份。')) return;
+  teamData = [];
+  saveTeam();
+  renderTeam();
+  showToast('已清空');
+});
+
+// ============ Utils ============
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+
+function copyToClipboard(text) {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).catch(() => fallbackCopy(text));
+  } else {
+    fallbackCopy(text);
+  }
+}
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); } catch {}
+  document.body.removeChild(ta);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+</script>
+</body>
+</html>

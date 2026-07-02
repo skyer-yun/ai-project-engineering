@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Loop 度量看板 v1.0</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  :root {
+    --primary: #165DFF;
+    --primary-light: #E8F3FF;
+    --success: #00B42A;
+    --warning: #FF7D00;
+    --danger: #F53F3F;
+    --text-1: #1D2129;
+    --text-2: #4E5969;
+    --text-3: #86909C;
+    --border: #E5E6EB;
+    --bg: #F7F8FA;
+    --card: #FFFFFF;
+    --shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text-1);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  header {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    box-shadow: var(--shadow);
+    position: sticky; top: 0; z-index: 10;
+  }
+  header h1 { font-size: 20px; font-weight: 600; }
+  header .meta { color: var(--text-3); font-size: 12px; margin-top: 4px; }
+  header .actions { float: right; display: flex; gap: 8px; }
+  .container { max-width: 1400px; margin: 0 auto; padding: 16px 24px; }
+
+  /* 顶部统计卡 */
+  .top-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    margin-bottom: 16px;
+  }
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 6px; padding: 14px 18px; box-shadow: var(--shadow);
+  }
+  .stat-card .label { color: var(--text-3); font-size: 12px; }
+  .stat-card .value { font-size: 22px; font-weight: 600; color: var(--primary); margin-top: 4px; }
+  .stat-card .sub { color: var(--text-3); font-size: 11px; margin-top: 2px; }
+
+  /* 工具栏 */
+  .toolbar {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--card); padding: 12px 16px;
+    border: 1px solid var(--border); border-radius: 6px;
+    margin-bottom: 16px; flex-wrap: wrap;
+  }
+  .toolbar label { color: var(--text-2); font-size: 13px; }
+  select, input[type=text], input[type=month] {
+    border: 1px solid var(--border); border-radius: 4px;
+    padding: 6px 10px; font-size: 13px; background: #fff; color: var(--text-1);
+  }
+  button {
+    background: var(--primary); color: #fff; border: none;
+    padding: 6px 14px; border-radius: 4px; font-size: 13px;
+    cursor: pointer; transition: opacity 0.2s;
+  }
+  button:hover { opacity: 0.85; }
+  button.secondary { background: #fff; color: var(--text-1); border: 1px solid var(--border); }
+  button.secondary:hover { background: var(--bg); }
+  button.danger { background: var(--danger); }
+
+  /* Tabs */
+  .tabs {
+    display: flex; gap: 0; border-bottom: 2px solid var(--border);
+    margin-bottom: 16px; background: var(--card);
+    padding: 0 16px; border-radius: 6px 6px 0 0;
+    overflow-x: auto;
+  }
+  .tab {
+    padding: 10px 18px; cursor: pointer;
+    color: var(--text-2); font-size: 14px;
+    border-bottom: 2px solid transparent; margin-bottom: -2px;
+    white-space: nowrap;
+  }
+  .tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+
+  /* KPI 卡片网格 */
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+  }
+  .kpi-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 6px; padding: 14px; box-shadow: var(--shadow);
+    border-left: 3px solid var(--primary);
+  }
+  .kpi-card .name { font-size: 13px; color: var(--text-2); }
+  .kpi-card .desc { font-size: 11px; color: var(--text-3); margin-top: 2px; min-height: 28px; }
+  .kpi-card .target { font-size: 11px; color: var(--text-3); margin-top: 4px; }
+  .kpi-card table.values { width: 100%; margin-top: 10px; border-collapse: collapse; }
+  .kpi-card table.values th, .kpi-card table.values td {
+    border-bottom: 1px solid var(--border); padding: 4px 6px; font-size: 12px;
+    text-align: right;
+  }
+  .kpi-card table.values th { color: var(--text-3); font-weight: normal; text-align: left; }
+  .kpi-card table.values td.value { font-weight: 600; }
+  .kpi-card table.values td.value.good { color: var(--success); }
+  .kpi-card table.values td.value.warn { color: var(--warning); }
+  .kpi-card table.values td.value.bad { color: var(--danger); }
+
+  /* 工种分组标题 */
+  .group-title {
+    grid-column: 1 / -1; font-size: 16px; font-weight: 600;
+    color: var(--text-1); padding: 12px 0 4px 0;
+    border-bottom: 1px dashed var(--border); margin-top: 8px;
+  }
+  .group-title .count { color: var(--text-3); font-size: 12px; font-weight: normal; margin-left: 8px; }
+
+  /* 趋势图 */
+  .chart-area {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 6px; padding: 16px; box-shadow: var(--shadow);
+    margin-bottom: 16px;
+  }
+  .chart-title { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+  svg.chart { width: 100%; height: 280px; }
+
+  /* 项目管理表 */
+  table.proj-table {
+    width: 100%; border-collapse: collapse;
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 6px; overflow: hidden;
+  }
+  table.proj-table th, table.proj-table td {
+    padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px;
+  }
+  table.proj-table th { background: var(--bg); color: var(--text-2); font-weight: 600; }
+  table.proj-table tr:last-child td { border-bottom: none; }
+  .badge {
+    display: inline-block; padding: 1px 8px; border-radius: 10px;
+    font-size: 11px;
+  }
+  .badge.green { background: #E8FFEA; color: var(--success); }
+  .badge.orange { background: #FFF7E8; color: var(--warning); }
+  .badge.red { background: #FFECE8; color: var(--danger); }
+  .badge.gray { background: var(--bg); color: var(--text-3); }
+
+  /* 编辑模态 */
+  .modal-bg {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+    display: none; align-items: center; justify-content: center; z-index: 100;
+  }
+  .modal-bg.show { display: flex; }
+  .modal {
+    background: var(--card); border-radius: 8px; padding: 24px;
+    width: 480px; max-height: 80vh; overflow-y: auto;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+  }
+  .modal h3 { margin-bottom: 12px; }
+  .modal .row { margin-bottom: 10px; }
+  .modal .row label { display: block; color: var(--text-2); margin-bottom: 4px; font-size: 12px; }
+  .modal .row input, .modal .row select { width: 100%; }
+  .modal .btns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+
+  footer { text-align: center; color: var(--text-3); font-size: 12px; padding: 24px 0; }
+
+  .empty { color: var(--text-3); text-align: center; padding: 32px; font-size: 13px; }
+  .hint { color: var(--text-3); font-size: 11px; margin-left: 8px; }
+  .group-section { display: none; }
+  .group-section.active { display: block; }
+</style>
+</head>
+<body>
+<header>
+  <div class="actions">
+    <button onclick="exportCSV()" class="secondary">导出 CSV</button>
+    <label class="hint">导入：</label>
+    <input type="file" id="csvFile" accept=".csv" onchange="importCSV(event)" style="font-size:12px;">
+    <button onclick="openProjModal()" class="secondary">+ 新增项目</button>
+    <button onclick="resetAll()" class="secondary">重置</button>
+  </div>
+  <h1>Loop 度量看板 v1.0</h1>
+  <div class="meta">基于 6 工种 Playbook 第 7 节 38 条 KPI · 多项目对比 · 时间趋势 · localStorage 持久化</div>
+</header>
+
+<div class="container">
+
+  <!-- 顶部统计 -->
+  <div class="top-stats" id="topStats"></div>
+
+  <!-- 工具栏 -->
+  <div class="toolbar">
+    <label>项目：</label>
+    <select id="projSelect" onchange="renderAll()"></select>
+    <label>时间周期：</label>
+    <input type="month" id="periodInput" onchange="renderAll()">
+    <label>对比模式：</label>
+    <select id="compareMode" onchange="renderAll()">
+      <option value="single">单项目详情</option>
+      <option value="compare">多项目横向对比</option>
+    </select>
+    <span class="hint">（数据存储在浏览器 localStorage，刷新不丢失）</span>
+  </div>
+
+  <!-- 工种 Tabs -->
+  <div class="tabs" id="tabs">
+    <div class="tab active" data-group="all" onclick="switchTab('all')">总览（38 KPI）</div>
+    <div class="tab" data-group="presales" onclick="switchTab('presales')">售前（8）</div>
+    <div class="tab" data-group="product" onclick="switchTab('product')">产品（6）</div>
+    <div class="tab" data-group="dev" onclick="switchTab('dev')">研发（6）</div>
+    <div class="tab" data-group="testing" onclick="switchTab('testing')">测试（6）</div>
+    <div class="tab" data-group="delivery" onclick="switchTab('delivery')">交付（6）</div>
+    <div class="tab" data-group="pm" onclick="switchTab('pm')">PM（6）</div>
+    <div class="tab" data-group="projects" onclick="switchTab('projects')">项目管理</div>
+  </div>
+
+  <!-- 总览 / 工种 KPI 区 -->
+  <div id="kpiArea" class="group-section active"></div>
+
+  <!-- 趋势图区 -->
+  <div id="trendArea" class="chart-area" style="display:none;">
+    <div class="chart-title" id="trendTitle">时间趋势</div>
+    <svg class="chart" id="trendChart"></svg>
+  </div>
+
+  <!-- 项目管理区 -->
+  <div id="projArea" class="group-section"></div>
+
+</div>
+
+<!-- 编辑模态 -->
+<div class="modal-bg" id="editModal">
+  <div class="modal">
+    <h3 id="modalTitle">编辑 KPI 值</h3>
+    <div class="row">
+      <label>KPI 名称</label>
+      <input type="text" id="mKpiName" readonly>
+    </div>
+    <div class="row">
+      <label>项目</label>
+      <input type="text" id="mProj" readonly>
+    </div>
+    <div class="row">
+      <label>周期（YYYY-MM）</label>
+      <input type="text" id="mPeriod" readonly>
+    </div>
+    <div class="row">
+      <label>数值</label>
+      <input type="text" id="mValue" placeholder="例如 0.92 / 87 / true">
+    </div>
+    <div class="row">
+      <label>说明（可选）</label>
+      <input type="text" id="mNote" placeholder="补充说明">
+    </div>
+    <div class="btns">
+      <button onclick="closeModal()" class="secondary">取消</button>
+      <button onclick="saveKpi()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 新增项目模态 -->
+<div class="modal-bg" id="projModal">
+  <div class="modal">
+    <h3>新增项目</h3>
+    <div class="row">
+      <label>项目名称</label>
+      <input type="text" id="newProjName" placeholder="例：XX 客户管理系统">
+    </div>
+    <div class="row">
+      <label>项目编码</label>
+      <input type="text" id="newProjCode" placeholder="例：CRM-2026">
+    </div>
+    <div class="row">
+      <label>阶段</label>
+      <select id="newProjStage">
+        <option>需求阶段</option>
+        <option>设计阶段</option>
+        <option>开发阶段</option>
+        <option>测试阶段</option>
+        <option>交付阶段</option>
+        <option>结项</option>
+      </select>
+    </div>
+    <div class="row">
+      <label>状态</label>
+      <select id="newProjStatus">
+        <option value="green">进行中-正常</option>
+        <option value="orange">进行中-风险</option>
+        <option value="red">进行中-严重风险</option>
+        <option value="gray">已暂停</option>
+      </select>
+    </div>
+    <div class="btns">
+      <button onclick="closeProjModal()" class="secondary">取消</button>
+      <button onclick="addProject()">添加</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  Loop 度量看板 v1.0 / 2026-06-30 · 单文件原生 HTML · 数据本地存储 · 配合 6 工种 Playbook 使用
+</footer>
+
+<script>
+/* ========================================================================
+ * KPI 定义（来自 6 工种 Playbook 第 7 节，共 38 条）
+ * type: percent (0-1) / count (整数) / score (1-5) / bool / hours
+ * direction: up (越高越好) / down (越低越好)
+ * ====================================================================== */
+const KPI_GROUPS = [
+  { key: 'presales', name: '售前', items: [
+    { id: 'presales.requirements_coverage', name: '需求覆盖率', desc: '客户原始需求 → 结构化条目', target: '≥ 0.95', type: 'percent', direction: 'up' },
+    { id: 'presales.chapters_completeness', name: '方案章完整度', desc: '11 章 / 7 章 / 8 章完整度', target: '1.0', type: 'percent', direction: 'up' },
+    { id: 'presales.bid_response_rate', name: '投标评分项覆盖', desc: '招标文件 → 响应条目', target: '≥ 0.98', type: 'percent', direction: 'up' },
+    { id: 'presales.solution_depth', name: '方案深度（架构图）', desc: '是否含 4 层架构图', target: 'true', type: 'bool', direction: 'up' },
+    { id: 'presales.tech_stack_match', name: '技术栈合规', desc: '是否命中企业白名单', target: 'true', type: 'bool', direction: 'up' },
+    { id: 'presales.risk_disclosure', name: '风险披露', desc: '高/中风险条目数', target: '0 P0', type: 'count', direction: 'down' },
+    { id: 'presales.demo_prd_consistency', name: 'Demo 与方案一致率', desc: '页面/字段一致度', target: '≥ 0.9', type: 'percent', direction: 'up' },
+    { id: 'presales.iteration_count', name: 'Loop 迭代次数', desc: '本节点平均迭代轮数', target: '2-4', type: 'count', direction: 'down' }
+  ]},
+  { key: 'product', name: '产品', items: [
+    { id: 'product.prd_completeness', name: 'PRD 12 部分完整度', desc: '标准 PRD 章节齐全', target: '1.0', type: 'percent', direction: 'up' },
+    { id: 'product.part7_depth', name: 'Part7 五维达标率', desc: 'P0 模块界面级', target: '≥ 0.95', type: 'percent', direction: 'up' },
+    { id: 'product.ac_testable_rate', name: 'AC 可测试率', desc: '验收标准可测试比例', target: '≥ 0.9', type: 'percent', direction: 'up' },
+    { id: 'product.ac_total', name: 'AC 条目数', desc: '验收标准总数', target: '按模块', type: 'count', direction: 'up' },
+    { id: 'product.demo_prd_consistency', name: 'Demo 与 PRD 一致率', desc: '字段/交互一致', target: '≥ 0.95', type: 'percent', direction: 'up' },
+    { id: 'product.requirement_change_count', name: '需求变更次数', desc: 'PRD 冻结后变更', target: '≤ 3', type: 'count', direction: 'down' }
+  ]},
+  { key: 'dev', name: '研发', items: [
+    { id: 'dev.unit_coverage_core', name: '核心代码单测覆盖', desc: 'P0 模块 line coverage', target: '≥ 0.9', type: 'percent', direction: 'up' },
+    { id: 'dev.unit_coverage_general', name: '通用代码单测覆盖', desc: '全量 line coverage', target: '≥ 0.75', type: 'percent', direction: 'up' },
+    { id: 'dev.lint_critical', name: 'Lint Critical', desc: 'P0/P1 静态缺陷', target: '0', type: 'count', direction: 'down' },
+    { id: 'dev.contract_consistency', name: '契约一致性', desc: 'API 实现与 OpenAPI 一致率', target: '1.0', type: 'percent', direction: 'up' },
+    { id: 'dev.p0_p1_defects', name: 'P0/P1 缺陷', desc: '编码阶段引入', target: '0', type: 'count', direction: 'down' },
+    { id: 'dev.atomic_commit_rate', name: '原子提交率', desc: '小步提交比例', target: '≥ 0.8', type: 'percent', direction: 'up' }
+  ]},
+  { key: 'testing', name: '测试', items: [
+    { id: 'testing.case_pass_rate', name: '用例通过率', desc: '通过用例 / 总用例', target: '≥ 0.95', type: 'percent', direction: 'up' },
+    { id: 'testing.p0_count', name: 'P0 缺陷数', desc: '阻塞性缺陷', target: '0', type: 'count', direction: 'down' },
+    { id: 'testing.p1_count', name: 'P1 缺陷数', desc: '严重缺陷', target: '0', type: 'count', direction: 'down' },
+    { id: 'testing.defect_escape_rate', name: '缺陷逃逸率', desc: '上线后发现的 / 总缺陷', target: '≤ 0.05', type: 'percent', direction: 'down' },
+    { id: 'testing.automation_coverage', name: '自动化覆盖', desc: '回归用例自动化比例', target: '≥ 0.7', type: 'percent', direction: 'up' },
+    { id: 'testing.performance_baseline_met', name: '性能基线达标', desc: 'P95 响应时间达标', target: 'true', type: 'bool', direction: 'up' }
+  ]},
+  { key: 'delivery', name: '交付', items: [
+    { id: 'delivery.acceptance_pass_rate', name: '验收通过率', desc: '客户验收 AC 通过比例', target: '1.0', type: 'percent', direction: 'up' },
+    { id: 'delivery.customer_satisfaction', name: '客户满意度', desc: '1-5 分', target: '≥ 4.5', type: 'score', direction: 'up' },
+    { id: 'delivery.deploy_first_attempt_success', name: '一次部署成功', desc: '首次部署是否成功', target: 'true', type: 'bool', direction: 'up' },
+    { id: 'delivery.rollback_count', name: '回滚次数', desc: '生产环境回滚', target: '0', type: 'count', direction: 'down' },
+    { id: 'delivery.deploy_duration_hours', name: '部署耗时', desc: '小时（端到端）', target: '≤ 4h', type: 'hours', direction: 'down' },
+    { id: 'delivery.doc_completeness', name: '交付文档完整度', desc: '运维/用户/培训材料', target: '1.0', type: 'percent', direction: 'up' }
+  ]},
+  { key: 'pm', name: 'PM', items: [
+    { id: 'pm.plan_deviation', name: '计划偏差率', desc: '实际 vs 计划工时', target: '≤ ±10%', type: 'percent', direction: 'down' },
+    { id: 'pm.rework_count', name: '返工次数', desc: '产物返工', target: '≤ 3', type: 'count', direction: 'down' },
+    { id: 'pm.loop_avg_iterations', name: 'Loop 平均迭代', desc: 'N 节点平均迭代轮数', target: '2-4', type: 'count', direction: 'down' },
+    { id: 'pm.qg_pass_rate', name: '质量门禁通过率', desc: 'QG-D/S/B/Ship 一次通过', target: '≥ 0.9', type: 'percent', direction: 'up' },
+    { id: 'pm.hitl_compliance', name: 'HITL 合规率', desc: '应人审节点是否人审', target: '1.0', type: 'percent', direction: 'up' },
+    { id: 'pm.archive_completeness', name: '归档完整度', desc: '全程 产物齐全', target: '1.0', type: 'percent', direction: 'up' }
+  ]}
+];
+
+const ALL_KPIS = KPI_GROUPS.flatMap(g => g.items.map(it => ({...it, group: g.key, groupName: g.name})));
+
+/* ========================================================================
+ * 持久化
+ * ====================================================================== */
+const STORE_KEY = 'loop_dashboard_v1';
+function loadStore() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { projects: [], values: {} };
+}
+function saveStore(s) {
+  localStorage.setItem(STORE_KEY, JSON.stringify(s));
+}
+let store = loadStore();
+
+// 默认初始化：1 个示例项目
+if (!store.projects.length) {
+  store.projects = [
+    { code: 'DEMO-001', name: '示例项目（参考）', stage: '开发阶段', status: 'green' }
+  ];
+  const period = new Date().toISOString().slice(0,7);
+  store.values['DEMO-001'] = {};
+  store.values['DEMO-001'][period] = {};
+  ALL_KPIS.forEach(k => {
+    let v = '';
+    if (k.type === 'percent') v = (0.85 + Math.random()*0.13).toFixed(2);
+    else if (k.type === 'count') v = k.direction === 'down' ? Math.floor(Math.random()*3) : Math.floor(50 + Math.random()*40);
+    else if (k.type === 'score') v = (4 + Math.random()).toFixed(1);
+    else if (k.type === 'bool') v = Math.random() > 0.3 ? 'true' : 'false';
+    else if (k.type === 'hours') v = Math.floor(2 + Math.random()*6);
+    store.values['DEMO-001'][period][k.id] = { value: v, note: '' };
+  });
+  saveStore(store);
+}
+
+/* ========================================================================
+ * 工具函数
+ * ====================================================================== */
+function getSelectedProject() {
+  return document.getElementById('projSelect').value || (store.projects[0] && store.projects[0].code);
+}
+function getSelectedPeriod() {
+  return document.getElementById('periodInput').value || new Date().toISOString().slice(0,7);
+}
+function fmtValue(kpi, raw) {
+  if (raw === undefined || raw === null || raw === '') return '—';
+  if (kpi.type === 'percent') {
+    const n = parseFloat(raw);
+    if (isNaN(n)) return raw;
+    return (n*100).toFixed(1) + '%';
+  }
+  if (kpi.type === 'bool') return raw === 'true' || raw === true ? '✓' : '✗';
+  if (kpi.type === 'hours') return raw + 'h';
+  return raw;
+}
+function valueClass(kpi, raw) {
+  if (raw === undefined || raw === null || raw === '') return '';
+  const n = parseFloat(raw);
+  if (isNaN(n)) {
+    if (kpi.type === 'bool') return raw === 'true' ? 'good' : 'bad';
+    return '';
+  }
+  if (kpi.type === 'percent') {
+    if (kpi.direction === 'up') {
+      if (n >= 0.9) return 'good';
+      if (n >= 0.75) return 'warn';
+      return 'bad';
+    } else {
+      if (n <= 0.05) return 'good';
+      if (n <= 0.15) return 'warn';
+      return 'bad';
+    }
+  }
+  if (kpi.type === 'count') {
+    if (kpi.direction === 'down') {
+      if (n === 0) return 'good';
+      if (n <= 2) return 'warn';
+      return 'bad';
+    }
+    return '';
+  }
+  if (kpi.type === 'score') return n >= 4.5 ? 'good' : n >= 3.5 ? 'warn' : 'bad';
+  if (kpi.type === 'hours') return n <= 4 ? 'good' : n <= 8 ? 'warn' : 'bad';
+  return '';
+}
+
+/* ========================================================================
+ * 渲染
+ * ====================================================================== */
+let activeGroup = 'all';
+
+function renderProjectSelect() {
+  const sel = document.getElementById('projSelect');
+  const cur = sel.value;
+  sel.innerHTML = store.projects.map(p => `<option value="${p.code}">${p.name} (${p.code})</option>`).join('');
+  if (cur && store.projects.find(p => p.code === cur)) sel.value = cur;
+  else if (store.projects[0]) sel.value = store.projects[0].code;
+}
+
+function renderTopStats() {
+  const proj = getSelectedProject();
+  const period = getSelectedPeriod();
+  const vals = (store.values[proj] && store.values[proj][period]) || {};
+
+  // 计算 6 工种平均达标率
+  const groupScores = KPI_GROUPS.map(g => {
+    const items = g.items;
+    let met = 0;
+    items.forEach(k => {
+      const v = vals[k.id];
+      if (v && valueClass(k, v.value) === 'good') met++;
+    });
+    return { name: g.name, met, total: items.length, rate: met/items.length };
+  });
+
+  const totalMet = groupScores.reduce((a,b)=>a+b.met,0);
+  const totalAll = groupScores.reduce((a,b)=>a+b.total,0);
+  const overall = totalAll ? (totalMet/totalAll) : 0;
+
+  const stats = [
+    { label: '当前项目', value: (store.projects.find(p=>p.code===proj)||{}).name || '—', sub: `编码 ${proj}` },
+    { label: '当前周期', value: period, sub: 'YYYY-MM' },
+    { label: '总达标率', value: (overall*100).toFixed(0) + '%', sub: `${totalMet}/${totalAll} 条 KPI 达标` },
+    { label: '项目总数', value: store.projects.length, sub: '本看板已登记' }
+  ];
+
+  document.getElementById('topStats').innerHTML = stats.map(s => `
+    <div class="stat-card">
+      <div class="label">${s.label}</div>
+      <div class="value">${s.value}</div>
+      <div class="sub">${s.sub}</div>
+    </div>
+  `).join('');
+}
+
+function renderKpiArea() {
+  const area = document.getElementById('kpiArea');
+  const mode = document.getElementById('compareMode').value;
+  if (activeGroup === 'projects') { area.innerHTML = ''; return; }
+
+  const groups = activeGroup === 'all' ? KPI_GROUPS : KPI_GROUPS.filter(g => g.key === activeGroup);
+  let html = '<div class="kpi-grid">';
+
+  groups.forEach(g => {
+    html += `<div class="group-title">${g.name} <span class="count">${g.items.length} 条 KPI</span></div>`;
+    g.items.forEach(k => {
+      html += renderKpiCard(k, mode);
+    });
+  });
+  html += '</div>';
+  area.innerHTML = html;
+
+  // 趋势图（仅 single 模式）
+  const trendArea = document.getElementById('trendArea');
+  if (mode === 'single' && activeGroup !== 'all') {
+    trendArea.style.display = 'block';
+    renderTrend();
+  } else if (mode === 'single' && activeGroup === 'all') {
+    // 总览：显示总体达标趋势
+    trendArea.style.display = 'block';
+    renderTrend();
+  } else {
+    trendArea.style.display = 'none';
+  }
+}
+
+function renderKpiCard(kpi, mode) {
+  const period = getSelectedPeriod();
+
+  if (mode === 'single') {
+    const proj = getSelectedProject();
+    const vals = (store.values[proj] && store.values[proj][period]) || {};
+    const v = vals[kpi.id];
+    const raw = v ? v.value : '';
+    const cls = valueClass(kpi, raw);
+    const noteHtml = v && v.note ? `<div style="font-size:11px;color:var(--text-3);margin-top:6px;border-top:1px dashed var(--border);padding-top:4px;">${v.note}</div>` : '';
+    return `
+      <div class="kpi-card" onclick="openEditModal('${kpi.id}')" style="cursor:pointer;">
+        <div class="name">${kpi.name}</div>
+        <div class="desc">${kpi.desc}</div>
+        <div class="target">目标：${kpi.target}</div>
+        <table class="values"><tr><th>${period}</th><td class="value ${cls}">${fmtValue(kpi, raw)}</td></tr></table>
+        ${noteHtml}
+      </div>`;
+  }
+
+  // 多项目横向对比
+  const projCols = store.projects;
+  let rows = projCols.map(p => {
+    const vals = (store.values[p.code] && store.values[p.code][period]) || {};
+    const v = vals[kpi.id];
+    const raw = v ? v.value : '';
+    const cls = valueClass(kpi, raw);
+    return `<th>${p.code}</th><td class="value ${cls}">${fmtValue(kpi, raw)}</td>`;
+  }).join('');
+  return `
+    <div class="kpi-card">
+      <div class="name">${kpi.name}</div>
+      <div class="desc">${kpi.desc}</div>
+      <div class="target">目标：${kpi.target}</div>
+      <table class="values">
+        ${projCols.map(p => {
+          const vals = (store.values[p.code] && store.values[p.code][period]) || {};
+          const v = vals[kpi.id];
+          const raw = v ? v.value : '';
+          const cls = valueClass(kpi, raw);
+          return `<tr><th>${p.code}</th><td class="value ${cls}" onclick="openEditModal('${kpi.id}','${p.code}')" style="cursor:pointer;">${fmtValue(kpi, raw)}</td></tr>`;
+        }).join('')}
+      </table>
+    </div>`;
+}
+
+function renderProjArea() {
+  const area = document.getElementById('projArea');
+  if (activeGroup !== 'projects') { area.innerHTML = ''; return; }
+
+  const statusMap = { green: { cls: 'green', txt: '正常' }, orange: { cls: 'orange', txt: '风险' }, red: { cls: 'red', txt: '严重' }, gray: { cls: 'gray', txt: '暂停' } };
+
+  area.innerHTML = `
+    <table class="proj-table">
+      <thead>
+        <tr>
+          <th>项目编码</th><th>项目名称</th><th>阶段</th><th>状态</th>
+          <th>已记录周期数</th><th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${store.projects.map(p => {
+          const periods = store.values[p.code] ? Object.keys(store.values[p.code]).sort() : [];
+          const st = statusMap[p.status] || statusMap.gray;
+          return `<tr>
+            <td><strong>${p.code}</strong></td>
+            <td>${p.name}</td>
+            <td>${p.stage}</td>
+            <td><span class="badge ${st.cls}">${st.txt}</span></td>
+            <td>${periods.length} 个周期</td>
+            <td>
+              <button class="secondary" onclick="switchProject('${p.code}')">查看</button>
+              <button class="secondary" onclick="deleteProject('${p.code}')">删除</button>
+            </td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+    <p class="hint" style="margin-top:12px;">提示：项目数据存储于浏览器 localStorage。清浏览器数据会丢失，请定期「导出 CSV」备份。</p>
+  `;
+}
+
+function renderTrend() {
+  const title = document.getElementById('trendTitle');
+  const svg = document.getElementById('trendChart');
+  const proj = getSelectedProject();
+  const projData = store.values[proj] || {};
+  const periods = Object.keys(projData).sort();
+
+  title.textContent = `${activeGroup === 'all' ? '总达标率' : (KPI_GROUPS.find(g=>g.key===activeGroup)||{}).name + ' 达标率'} 趋势 - ${(store.projects.find(p=>p.code===proj)||{}).name || proj}`;
+
+  if (periods.length < 1) {
+    svg.innerHTML = '<text x="50%" y="50%" text-anchor="middle" fill="#86909C">暂无历史数据（至少需要 1 个周期）</text>';
+    return;
+  }
+
+  // 计算每个周期达标率
+  const rates = periods.map(per => {
+    const vals = projData[per] || {};
+    const groups = activeGroup === 'all' ? KPI_GROUPS : KPI_GROUPS.filter(g => g.key === activeGroup);
+    let met = 0, total = 0;
+    groups.forEach(g => g.items.forEach(k => {
+      total++;
+      const v = vals[k.id];
+      if (v && valueClass(k, v.value) === 'good') met++;
+    }));
+    return total ? met/total : 0;
+  });
+
+  // SVG 渲染
+  const W = svg.clientWidth || 1200, H = 280;
+  const PAD = { l: 50, r: 30, t: 30, b: 50 };
+  const innerW = W - PAD.l - PAD.r;
+  const innerH = H - PAD.t - PAD.b;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+  const xStep = periods.length > 1 ? innerW / (periods.length - 1) : 0;
+  const yScale = v => PAD.t + innerH * (1 - v);
+
+  let path = '';
+  const points = [];
+  periods.forEach((p, i) => {
+    const x = PAD.l + i * xStep;
+    const y = yScale(rates[i]);
+    points.push({ x, y, period: p, rate: rates[i] });
+    path += (i === 0 ? 'M' : 'L') + x + ',' + y + ' ';
+  });
+
+  let grid = '';
+  for (let i = 0; i <= 4; i++) {
+    const y = PAD.t + (innerH / 4) * i;
+    const v = 1 - i/4;
+    grid += `<line x1="${PAD.l}" y1="${y}" x2="${W-PAD.r}" y2="${y}" stroke="#E5E6EB" stroke-width="1"/>`;
+    grid += `<text x="${PAD.l-8}" y="${y+4}" text-anchor="end" fill="#86909C" font-size="11">${(v*100).toFixed(0)}%</text>`;
+  }
+
+  const xLabels = periods.map((p, i) =>
+    `<text x="${PAD.l + i * xStep}" y="${H - PAD.b + 18}" text-anchor="middle" fill="#4E5969" font-size="11">${p}</text>`
+  ).join('');
+
+  const dots = points.map(pt =>
+    `<circle cx="${pt.x}" cy="${pt.y}" r="4" fill="#165DFF" stroke="#fff" stroke-width="2">
+     <title>${pt.period}: ${(pt.rate*100).toFixed(0)}%</title></circle>`
+  ).join('');
+
+  const area = points.length > 1 ?
+    `<path d="M${points[0].x},${H-PAD.b} ${points.map(p=>`L${p.x},${p.y}`).join(' ')} L${points[points.length-1].x},${H-PAD.b} Z" fill="rgba(22,93,255,0.1)"/>` : '';
+
+  svg.innerHTML = `
+    ${grid}
+    ${area}
+    <path d="${path}" fill="none" stroke="#165DFF" stroke-width="2.5"/>
+    ${dots}
+    ${xLabels}
+    <text x="${PAD.l}" y="20" fill="#1D2129" font-size="13" font-weight="600">达标率（green 占比）</text>
+  `;
+}
+
+function renderAll() {
+  renderProjectSelect();
+  renderTopStats();
+  renderKpiArea();
+  renderProjArea();
+}
+
+/* ========================================================================
+ * Tab 切换
+ * ====================================================================== */
+function switchTab(group) {
+  activeGroup = group;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.group === group));
+  document.querySelectorAll('.group-section').forEach(s => s.classList.remove('active'));
+  if (group === 'projects') {
+    document.getElementById('projArea').classList.add('active');
+    document.getElementById('trendArea').style.display = 'none';
+  } else {
+    document.getElementById('kpiArea').classList.add('active');
+    renderKpiArea();
+  }
+  renderTopStats();
+}
+
+function switchProject(code) {
+  document.getElementById('projSelect').value = code;
+  switchTab('all');
+  renderAll();
+}
+
+/* ========================================================================
+ * 模态 / 编辑
+ * ====================================================================== */
+let editingKpi = null;
+function openEditModal(kpiId, projOverride) {
+  editingKpi = kpiId;
+  const kpi = ALL_KPIS.find(k => k.id === kpiId);
+  const proj = projOverride || getSelectedProject();
+  const period = getSelectedPeriod();
+  const vals = (store.values[proj] && store.values[proj][period]) || {};
+  const v = vals[kpiId] || { value: '', note: '' };
+
+  document.getElementById('mKpiName').value = kpi.name;
+  document.getElementById('mProj').value = proj;
+  document.getElementById('mPeriod').value = period;
+  document.getElementById('mValue').value = v.value;
+  document.getElementById('mNote').value = v.note || '';
+  document.getElementById('editModal').classList.add('show');
+}
+function closeModal() { document.getElementById('editModal').classList.remove('show'); }
+
+function saveKpi() {
+  const kpiId = editingKpi;
+  const proj = document.getElementById('mProj').value;
+  const period = document.getElementById('mPeriod').value;
+  const value = document.getElementById('mValue').value.trim();
+  const note = document.getElementById('mNote').value.trim();
+  if (!proj || !period) { alert('项目/周期不能为空'); return; }
+  if (!store.values[proj]) store.values[proj] = {};
+  if (!store.values[proj][period]) store.values[proj][period] = {};
+  store.values[proj][period][kpiId] = { value, note };
+  saveStore(store);
+  closeModal();
+  renderAll();
+}
+
+function openProjModal() { document.getElementById('projModal').classList.add('show'); }
+function closeProjModal() { document.getElementById('projModal').classList.remove('show'); }
+
+function addProject() {
+  const name = document.getElementById('newProjName').value.trim();
+  const code = document.getElementById('newProjCode').value.trim();
+  const stage = document.getElementById('newProjStage').value;
+  const status = document.getElementById('newProjStatus').value;
+  if (!name || !code) { alert('请填写名称和编码'); return; }
+  if (store.projects.find(p => p.code === code)) { alert('编码已存在'); return; }
+  store.projects.push({ code, name, stage, status });
+  store.values[code] = {};
+  saveStore(store);
+  closeProjModal();
+  document.getElementById('newProjName').value = '';
+  document.getElementById('newProjCode').value = '';
+  renderAll();
+}
+
+function deleteProject(code) {
+  if (!confirm(`确认删除项目 ${code}？该项目的所有 KPI 数据将一并删除。`)) return;
+  store.projects = store.projects.filter(p => p.code !== code);
+  delete store.values[code];
+  saveStore(store);
+  renderAll();
+}
+
+function resetAll() {
+  if (!confirm('重置将清空所有项目与 KPI 数据，恢复默认示例。确认？')) return;
+  localStorage.removeItem(STORE_KEY);
+  store = loadStore();
+  // 重新初始化默认数据
+  if (!store.projects.length) {
+    store.projects = [{ code: 'DEMO-001', name: '示例项目（参考）', stage: '开发阶段', status: 'green' }];
+    const period = new Date().toISOString().slice(0,7);
+    store.values['DEMO-001'] = {};
+    store.values['DEMO-001'][period] = {};
+    ALL_KPIS.forEach(k => {
+      let v = '';
+      if (k.type === 'percent') v = (0.85 + Math.random()*0.13).toFixed(2);
+      else if (k.type === 'count') v = k.direction === 'down' ? Math.floor(Math.random()*3) : Math.floor(50 + Math.random()*40);
+      else if (k.type === 'score') v = (4 + Math.random()).toFixed(1);
+      else if (k.type === 'bool') v = Math.random() > 0.3 ? 'true' : 'false';
+      else if (k.type === 'hours') v = Math.floor(2 + Math.random()*6);
+      store.values['DEMO-001'][period][k.id] = { value: v, note: '' };
+    });
+    saveStore(store);
+  }
+  renderAll();
+}
+
+/* ========================================================================
+ * CSV 导入导出（BOM 兼容 Excel）
+ * ====================================================================== */
+function exportCSV() {
+  const period = getSelectedPeriod();
+  const headers = ['项目编码', '项目名称', '阶段', '状态', '周期', ...ALL_KPIS.map(k => k.id), ...ALL_KPIS.map(k => k.id + '_note')];
+  let rows = [headers.join(',')];
+  store.projects.forEach(p => {
+    const periods = Object.keys(store.values[p.code] || {});
+    if (periods.length === 0) periods.push(period);
+    periods.forEach(per => {
+      const vals = (store.values[p.code] && store.values[p.code][per]) || {};
+      const cells = [p.code, p.name, p.stage, p.status, per];
+      ALL_KPIS.forEach(k => cells.push((vals[k.id] && vals[k.id].value) || ''));
+      ALL_KPIS.forEach(k => cells.push((vals[k.id] && vals[k.id].note) || ''));
+      rows.push(cells.map(c => `"${String(c).replace(/"/g, '""')}"`).join(','));
+    });
+  });
+  const csv = '\ufeff' + rows.join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `loop-dashboard-${period}-${Date.now()}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importCSV(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const text = e.target.result.replace(/^\ufeff/, '');
+    const lines = text.split(/\r?\n/).filter(l => l.trim());
+    if (lines.length < 2) { alert('CSV 为空'); return; }
+    const headers = parseCSVLine(lines[0]);
+    const kpiIds = ALL_KPIS.map(k => k.id);
+    const newProjects = [];
+    const newValues = {};
+
+    for (let i = 1; i < lines.length; i++) {
+      const cells = parseCSVLine(lines[i]);
+      const code = cells[0], name = cells[1], stage = cells[2], status = cells[3], period = cells[4];
+      if (!code || !period) continue;
+      if (!newProjects.find(p => p.code === code)) newProjects.push({ code, name, stage, status: status || 'green' });
+      if (!newValues[code]) newValues[code] = {};
+      if (!newValues[code][period]) newValues[code][period] = {};
+      headers.forEach((h, idx) => {
+        if (kpiIds.includes(h)) {
+          const v = cells[idx];
+          if (v !== undefined && v !== '') {
+            const noteIdx = headers.indexOf(h + '_note');
+            const note = noteIdx >= 0 ? (cells[noteIdx] || '') : '';
+            newValues[code][period][h] = { value: v, note };
+          }
+        }
+      });
+    }
+    if (!confirm(`即将导入 ${newProjects.length} 个项目、${Object.keys(newValues).length} 个项目数据。会与现有数据合并。确认？`)) return;
+    newProjects.forEach(np => {
+      if (!store.projects.find(p => p.code === np.code)) store.projects.push(np);
+    });
+    Object.keys(newValues).forEach(code => {
+      if (!store.values[code]) store.values[code] = {};
+      Object.keys(newValues[code]).forEach(per => {
+        store.values[code][per] = Object.assign({}, store.values[code][per], newValues[code][per]);
+      });
+    });
+    saveStore(store);
+    renderAll();
+    alert('导入完成');
+  };
+  reader.readAsText(file, 'UTF-8');
+  event.target.value = '';
+}
+
+function parseCSVLine(line) {
+  const cells = [];
+  let cur = '', inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (inQ) {
+      if (c === '"' && line[i+1] === '"') { cur += '"'; i++; }
+      else if (c === '"') { inQ = false; }
+      else cur += c;
+    } else {
+      if (c === ',') { cells.push(cur); cur = ''; }
+      else if (c === '"' && cur === '') { inQ = true; }
+      else cur += c;
+    }
+  }
+  cells.push(cur);
+  return cells;
+}
+
+/* ========================================================================
+ * 初始化
+ * ====================================================================== */
+document.getElementById('periodInput').value = new Date().toISOString().slice(0,7);
+renderAll();
+window.addEventListener('resize', () => { if (document.getElementById('trendArea').style.display !== 'none') renderTrend(); });
+</script>
+</body>
+</html>
