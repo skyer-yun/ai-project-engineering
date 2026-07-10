@@ -1,238 +1,106 @@
-# 交接契约引用 标准模板
-# 协议权威源：../../../01-标准层/06-交接契约引用协议.md
+# ============================================================================
+# 阶段交接契约 标准模板 v1.0
+# 协议权威源：../../../01-标准层/04-阶段交接契约Schema.md
+# ============================================================================
 #
-# 每个跨智能体交接必须写入此 YAML。
-# 字段说明详见协议文档，本文件含 6 个工种示例。
-
-# ============================================================================
-# 通用 schema（所有工种共用）
-# ============================================================================
-
-# ---
-# node: N{X}                          # 必填，当前 N 节点
-# iteration: {N}                      # 必填，本节点 Loop 迭代次数（≥1）
-# agent: {copilot-id}                 # 必填，执行的 copilot
-# input_artifacts:                    # 必填，本节点接收的产物
-#   - name: {产物名}
-#     path: {相对路径或 URL}
-#     version: {v1.0 | git commit | RIDS snapshot}
-# output_artifacts:                   # 必填，本节点产出的产物
-#   - name: {产物名}
-#     path: {路径}
-#     version: {v1.0}
-# eval_scores:                        # 必填，客观 Eval 分数（来自 Observe 阶段）
-#   {metric_name}: {0-1 分数或绝对值}
-# reflect_passed: true | false        # 必填，主观人审是否通过（来自 Reflect 阶段）
-# exit_met: true | false              # 必填，是否满足 Exit 条件
-# handoff_to: {下游 copilot-id}       # exit_met=true 时必填
-# risk_flags:                         # 可选，风险标注
-#   - {风险描述}
-# notes: {自由备注}                   # 可选
-# created_at: {ISO 8601 timestamp}
-# created_by: {姓名}
+# 用途：每个 QG 通过后必须生成此 YAML，下游阶段读取后方可启动。
+# 命名：handoff-{from}-{to}-v{N}.yaml，如 handoff-D-S-v1.0.yaml
+# 归档：项目文档/{项目}/_handoffs/
+#
+# 阶段代号：D=需求 / S=设计 / B=开发 / Ship=交付 / L=复盘
+# 质量门禁：QG-D=QG-需求 / QG-S=QG-设计 / QG-B=QG-开发 / QG-Ship=QG-交付
+# 逻辑角色：Spec-Writer（需求规范师）/ Builder（构建师）/ Reviewer（审查师）
+#           Shipper（交付师）/ Keeper（统筹师）
+# HITL 模式：In（每关键阶段审批）/ On（监督不干预）/ Fallback（自动+兜底）
+# 不可逆等级：L1（可逆）/ L2（轻损）/ L3（重损）/ L4（不可逆）
+#
+# 完整填充示例见 examples/ 目录（如 good-D-to-S.yaml）
+# 校验：./validate-handoff.sh handoff-{from}-{to}-v1.0.yaml
 # ============================================================================
 
-# ----------------------------------------------------------------------------
-# 示例 1：售前 → 产品（D → S）
-# ----------------------------------------------------------------------------
-signature_presales_to_product: &presales_to_product
-  node: D
-  iteration: 4
-  agent: pre-sales-copilot
-  input_artifacts:
-    - name: 客户需求邮件
-      path: 项目文档/XX项目/01-需求阶段/客户邮件原文.txt
-    - name: 招标文件
-      path: 项目文档/XX项目/01-需求阶段/招标文件.pdf
-      required: false
-  output_artifacts:
-    - name: 需求分析报告
-      path: 项目文档/XX项目/01-需求阶段/需求分析报告-v1.docx
-      version: v1.0
-      requirements_count: 47
-    - name: 技术方案
-      path: 项目文档/XX项目/01-需求阶段/技术方案-v1.docx
-      version: v1.0
-      chapters_complete: 11
-      has_architecture_diagram: true
-  eval_scores:
-    requirements_coverage: 1.0       # 需求覆盖率
-    chapters_completeness: 1.0       # 11 章完整度
-    bid_response_rate: 1.0           # 投标评分项覆盖（投标场景）
-  reflect_passed: true
-  exit_met: true
-  handoff_to: product-copilot
-  risk_flags:
-    - 客户预算偏紧，方案需控制中间件成本
-  notes: 风控规则引擎是核心卖点，PRD Part 7 需细化到界面级别
-  created_at: "2026-07-01T14:30:00+08:00"
-  created_by: 张售前
+handoff:
+  # —— 基础元信息 ——
+  schema_version: "1.0"
+  project: "{项目名}"                      # 必填
+  project_code: "{项目代号}"                # 必填，如 DEMO-2026
+  generated_at: "{ISO 8601 时间戳}"         # 必填，如 2026-07-01T10:00:00+08:00
+  generated_by: "{生成者：人名 或 AI 工具名}" # 必填
 
-# ----------------------------------------------------------------------------
-# 示例 2：产品 → 研发（S → S）
-# ----------------------------------------------------------------------------
-signature_product_to_dev:
-  node: S
-  iteration: 2
-  agent: product-copilot
-  input_artifacts:
-    - name: 需求分析报告
-      path: 项目文档/XX项目/01-需求阶段/需求分析报告-v1.docx
-  output_artifacts:
-    - name: PRD
-      path: 项目文档/XX项目/01-需求阶段/PRD-v1.md
-      version: v1.0
-      parts_complete: 12
-      part7_depth_pass: true
-    - name: 原型 Demo
-      path: 项目文档/XX项目/02-设计阶段/原型/
-      pages: 15
-    - name: 数据字典
-      path: 项目文档/XX项目/01-需求阶段/数据字典-v1.md
-    - name: 验收标准清单
-      path: 项目文档/XX项目/01-需求阶段/验收标准-v1.md
-      total_ac: 87
-      testable_rate: 0.94
-  eval_scores:
-    prd_completeness: 1.0            # 12 部分完整度
-    part7_depth: 0.96                # P0 五维达标率
-    demo_prd_consistency: 0.95       # Demo 与 PRD 一致率
-    ac_testable_rate: 0.94
-  reflect_passed: true
-  exit_met: true
-  handoff_to: dev-copilot
-  notes: 报表中心 Part 7 已细化到图表级别，可直接进入详细设计
-  created_at: "2026-07-03T10:00:00+08:00"
-  created_by: 李产品
+  # —— 阶段流转（默认填最常见的 需求→设计；其它流转见文末速查表）——
+  from_stage: "D"                         # 必填：D=需求 / S=设计 / B=开发 / Ship=交付 / L=复盘
+  to_stage:   "S"                         # 必填：同上
+  quality_gate: "QG-D"                    # 必填：QG-D / QG-S / QG-B / QG-Ship
+  gate_status: "passed"                   # 必填：passed / failed / escalated
 
-# ----------------------------------------------------------------------------
-# 示例 3：研发 → 测试（B → Ship）
-# ----------------------------------------------------------------------------
-signature_dev_to_testing:
-  node: B
-  iteration: 3
-  agent: dev-copilot
-  input_artifacts:
-    - name: PRD
-      path: 项目文档/XX项目/01-需求阶段/PRD-v1.md
-    - name: 详细设计
-      path: 项目文档/XX项目/02-设计阶段/详细设计-v1.md
-  output_artifacts:
-    - name: 源代码
-      path: git://repo/myapp@v2.3.1
-      version: v2.3.1
-      commit: abc123def
-    - name: API 文档
-      path: 项目文档/XX项目/02-设计阶段/api-docs/openapi.yaml
-    - name: 集成测试报告
-      path: 项目文档/XX项目/04-测试阶段/集成报告-v1.md
-      integration_pass_rate: 0.97
-  eval_scores:
-    unit_coverage_core: 0.92
-    unit_coverage_general: 0.78
-    lint_critical: 0
-    integration_pass_rate: 0.97
-    contract_consistency: 1.0
-    p0_p1_defects: 0
-  reflect_passed: true
-  exit_met: true
-  handoff_to: testing-copilot
-  risk_flags:
-    - 报表导出大数据量性能待验证
-  notes: 认证模块 refresh_token 有 2 个边界场景需测试重点关注
-  created_at: "2026-07-10T16:00:00+08:00"
-  created_by: 王研发
+  # —— 输出产物（工具中立：只描述，不绑工具）——
+  output_artifacts:                        # 必填，数组
+    - name: "{产物名}"                     # 必填
+      path: "{相对路径或 git URL}"          # 必填
+      version: "{v1.0|git commit|tag}"     # 必填
+      hash: "sha256:..."                   # 可选，关键产物建议加
 
-# ----------------------------------------------------------------------------
-# 示例 4：测试 → 交付（Ship → Ship）
-# ----------------------------------------------------------------------------
-signature_testing_to_delivery:
-  node: Ship
-  iteration: 2
-  agent: testing-copilot
-  input_artifacts:
-    - name: 源代码
-      path: git://repo/myapp@v2.3.1
-    - name: 测试用例集
-      path: 项目文档/XX项目/04-测试阶段/test-cases.yaml
-  output_artifacts:
-    - name: 测试报告
-      path: 项目文档/XX项目/04-测试阶段/测试报告-v1.md
-      pass_rate: 0.96
-    - name: 缺陷清单（清零）
-      path: 项目文档/XX项目/04-测试阶段/缺陷清单-v1.md
-      p0_count: 0
-      p1_count: 0
-    - name: 性能报告
-      path: 项目文档/XX项目/04-测试阶段/性能报告-v1.md
-  eval_scores:
-    case_pass_rate: 0.96
-    p0_count: 0
-    p1_count: 0
-    defect_escape_rate: 0.04
-    automation_coverage: 0.72
-    performance_baseline_met: true
-  reflect_passed: true
-  exit_met: true
-  handoff_to: delivery-copilot
-  notes: 已具备提测通过条件
-  created_at: "2026-07-15T11:00:00+08:00"
-  created_by: 赵测试
+  # —— Loop 签名链（阶段内微循环记录）——
+  loop_signs:                              # 必填，数组
+    - stage: "D"                          # 必填：D / S / B / Ship / L（按当前阶段填）
+      iterations: 3                        # 必填，Loop 迭代次数（≤5）
+      final_eval:                          # 必填，关键 Eval 指标（示例键，按实际阶段替换）
+        requirement_completeness: "0.92"   # 如 需求完整度 / 方案完备度 / 单测覆盖率
+      reflect_passed: true                 # 必填，主观人审通过
+      exit_met: true                       # 必填，是否满足 Exit 条件
 
-# ----------------------------------------------------------------------------
-# 示例 5：交付 → PM/客户（Ship → Ship）
-# ----------------------------------------------------------------------------
-signature_delivery_to_pm:
-  node: Ship
-  iteration: 1
-  agent: delivery-copilot
-  input_artifacts:
-    - name: 测试报告
-      path: 项目文档/XX项目/04-测试阶段/测试报告-v1.md
-    - name: 部署 Checkpoint
-      path: snapshots/pre-deploy-20260715-1430/
-  output_artifacts:
-    - name: 验收报告
-      path: 项目文档/XX项目/05-交付阶段/验收报告-v1.md
-      customer_signed: true
-    - name: 运维手册
-      path: 项目文档/XX项目/05-交付阶段/运维手册-v1.md
-  eval_scores:
-    acceptance_pass_rate: 1.0
-    customer_satisfaction: 4.5       # 1-5 评分
-    deploy_first_attempt_success: true
-    rollback_count: 0
-  reflect_passed: true
-  exit_met: true
-  handoff_to: project-copilot
-  notes: 客户已签字，进入培训阶段
-  created_at: "2026-07-20T15:00:00+08:00"
-  created_by: 孙交付
+  # —— 逻辑角色交接（签字用）——
+  handoff:                                 # 必填
+    to_role: "{Spec-Writer|Builder|Reviewer|Shipper|Keeper}"
+    from_role: "{Spec-Writer|Builder|Reviewer|Shipper|Keeper}"
 
-# ----------------------------------------------------------------------------
-# 示例 6：PM 收尾（L）
-# ----------------------------------------------------------------------------
-signature_pm_close:
-  node: L
-  iteration: 1
-  agent: project-copilot
-  input_artifacts:
-    - name: 全周期 交接契约引用 链
-      path: 项目文档/XX项目/loop-signatures/
-      nodes_covered: [D, D, D, S, S, S, B, B, B, Ship, Ship, Ship, Ship, Ship, Ship]
-  output_artifacts:
-    - name: 结项报告
-      path: 项目文档/XX项目/06-管理阶段/结项报告-v1.md
-    - name: 经验沉淀
-      path: 项目文档/XX项目/06-管理阶段/经验总结-v1.md
-  eval_scores:
-    plan_deviation: 0.08             # 计划偏差率 ±8%
-    rework_count: 3
-    loop_avg_iterations: 2.4
-    customer_satisfaction: 4.5
-    archive_completeness: 1.0
-  reflect_passed: true
-  exit_met: true
-  notes: 项目验收通过，进入维护期
-  created_at: "2026-07-25T10:00:00+08:00"
-  created_by: 周PM
+  # —— 工具记录（中立：记录用了什么，但 schema 不依赖）——
+  tool_used:                               # 可选
+    primary: "{Claude Code|Codex|Cursor|自带工具|人工}"
+    adapter: "{对应 05-适配层/ 的方案名}"
+    notes: "{可选说明}"
+
+  # —— HITL 签名 ——
+  hitl_signature:                          # 必填
+    mode: "In"                             # 必填：In / On / Fallback
+    irreversibility: "L3"                  # 必填：L1 可逆 / L2 轻损 / L3 重损 / L4 不可逆
+    approved_by:                           # 必填，非空数组
+      - role: "{角色}"                     # 如 客户代表 / Spec-Writer / Keeper
+        name: "{姓名}"
+        timestamp: "{ISO 8601 时间戳}"
+
+  # —— 风险与备注（可选）——
+  risk_flags: []                           # 可选，风险描述数组
+  notes: "{可选备注文字}"
+
+# ============================================================================
+# 各阶段填写要点速查
+# ============================================================================
+#
+# ▶ 需求 → 设计（D → S）
+#   - quality_gate: QG-D
+#   - 必备产物：需求分析报告 / 干系人清单 / 需求确认书
+#   - 关键 Eval：requirement_completeness ≥ 0.9 / scenario_coverage ≥ 0.9
+#   - HITL：In + L3（客户签字必备）
+#   - from_role: Spec-Writer / to_role: Builder
+#
+# ▶ 设计 → 开发（S → B）
+#   - quality_gate: QG-S
+#   - 必备产物：PRD / 原型 Demo / 架构设计 / 详细设计 / 验收标准清单
+#   - 关键 Eval：prd_completeness = 1.0 / ac_testable_rate ≥ 0.9
+#   - HITL：In + L3（架构评审必备）
+#   - from_role: Spec-Writer / to_role: Builder
+#
+# ▶ 开发 → 交付（B → Ship）
+#   - quality_gate: QG-B
+#   - 必备产物：源代码 / API 文档 / 联调报告
+#   - 关键 Eval：unit_coverage_core ≥ 0.8 / lint_critical = 0 / p0_p1 = 0
+#   - HITL：In + L2（关键模块 Plan Mode + Reviewer 审查）
+#   - from_role: Builder / to_role: Shipper
+#
+# ▶ 交付 → 复盘（Ship → L）
+#   - quality_gate: QG-Ship
+#   - 必备产物：测试报告 / 部署记录 / 验收报告 / 培训材料 / 运维手册
+#   - 关键 Eval：case_pass_rate ≥ 0.95 / acceptance_pass_rate = 1.0
+#   - HITL：In + L4（生产部署 + 客户签字，不可逆）
+#   - from_role: Shipper / to_role: Keeper
+# ============================================================================

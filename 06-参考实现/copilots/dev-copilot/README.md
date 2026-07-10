@@ -23,10 +23,10 @@ Dev Copilot 是一个**研发编排技能**，覆盖从技术设计到编码交�
 ### 与 product-copilot 的关系
 
 ```
-product-copilot（N1-N6）          dev-copilot（N5-N9）
+product-copilot（需求+设计前半）          dev-copilot（设计后半+开发）
   PRD + Demo + 设计规范    →      架构设计 → 编码 → 审查 → 联调
 
-dev-copilot（N5-N9）             testing-copilot（N10-N12）
+dev-copilot（设计后半+开发）             testing-copilot（开发末+测试）
   源码 + 接口文档 + 联调    →     测试 + 部署 + 上线
 ```
 
@@ -157,14 +157,14 @@ rm -rf ~/.claude/skills/dev-copilot/
 
 ---
 
-## 5. 生命周期覆盖（N5-N9）
+## 5. 生命周期覆盖（设计后半+开发）
 
 | 阶段 | 编号 | 本技能工作流 | 核心产物 |
 |------|------|-------------|---------|
-| 技术设计 | N7 | architecture-workflow + detailed-design-workflow | 架构文档 + 详细设计文档 |
-| 编码开发 | N8 | coding-workflow | 源码 + 单元测试 |
-| 代码审查 | N9 | review-workflow | 审查报告 |
-| 联调集成 | N10 | coding-workflow（联调扩展） | 联调报告 + 接口文档 |
+| 技术设计 | 设计·技术设计 | architecture-workflow + detailed-design-workflow | 架构文档 + 详细设计文档 |
+| 编码开发 | 开发·编码 | coding-workflow | 源码 + 单元测试 |
+| 代码审查 | 开发·代码审查 | review-workflow | 审查报告 |
+| 联调集成 | 开发·联调 | coding-workflow（联调扩展） | 联调报告 + 接口文档 |
 
 ---
 

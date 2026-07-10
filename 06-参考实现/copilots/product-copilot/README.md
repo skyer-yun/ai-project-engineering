@@ -2,7 +2,7 @@
 
 > 版本：v1.1（已完成）
 > 安装路径：`~/.claude/skills/product-copilot/`
-> 覆盖阶段：N4-N7（需求确认→PRD→原型→技术设计输入）
+> 覆盖阶段：需求确认→设计前半（需求确认→PRD→原型→技术设计输入）
 
 ---
 
@@ -44,10 +44,10 @@
 
 | 节点 | 阶段 | 核心产物 | 对应工作流 |
 |------|------|----------|-----------|
-| N4 | 需求确认 | 需求确认书 | PRD Workflow |
-| N5 | PRD 编写 | 12 部分 PRD | PRD Workflow |
-| N6 | 原型设计 | Demo 页面 | Demo Workflow |
-| N7 | 技术设计输入 | 设计规范、功能清单 | Demo Workflow |
+| 需求·确认 | 需求确认 | 需求确认书 | PRD Workflow |
+| 设计·PRD | PRD 编写 | 12 部分 PRD | PRD Workflow |
+| 设计·原型 | 原型设计 | Demo 页面 | Demo Workflow |
+| 设计·技术设计 | 技术设计输入 | 设计规范、功能清单 | Demo Workflow |
 
 ### 交接条件
 

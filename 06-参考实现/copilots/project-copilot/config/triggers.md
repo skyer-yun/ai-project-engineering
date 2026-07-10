@@ -16,12 +16,12 @@
 
 | 关键词 | 当前阶段 | 下一步 |
 |--------|---------|--------|
-| 需求收集 / 客户沟通 / 投标 / 售前 | N1-N3 售前 | → pre-sales-copilot |
-| PRD / 原型 / Demo / 产品设计 | N4-N7 产品 | → product-copilot |
-| 开发 / 编码 / 联调 / 代码审查 | N5-N9 开发 | → dev-copilot |
-| 测试策略 / 测试用例 / 测试执行 / Bug | N10-N12 测试 | → testing-copilot |
-| 部署 / 上线 / 验收 / 交付文档 | N13-N15 交付 | → delivery-copilot |
-| 结项 / 总结 / 归档 | N16 结项 | → project-close |
+| 需求收集 / 客户沟通 / 投标 / 售前 | 需求阶段（理解+分析+方案） 售前 | → pre-sales-copilot |
+| PRD / 原型 / Demo / 产品设计 | 需求确认→设计前半 产品 | → product-copilot |
+| 开发 / 编码 / 联调 / 代码审查 | 设计后半+开发 开发 | → dev-copilot |
+| 测试策略 / 测试用例 / 测试执行 / Bug | 开发末+测试 测试 | → testing-copilot |
+| 部署 / 上线 / 验收 / 交付文档 | 交付后半 交付 | → delivery-copilot |
+| 结项 / 总结 / 归档 | 结项 | → project-close |
 
 ## 管理任务识别
 
@@ -49,8 +49,8 @@
 | 场景 | 工作流组合 | 顺序 |
 |------|-----------|------|
 | 新项目从头开始 | init → plan → track → close | 全生命周期 |
-| 开发完了要测试 | 门禁检查(QG-B) → 协调testing | 跨智能体 |
-| 测试通过了要上线 | 门禁检查(QG-Ship) → 协调delivery | 跨智能体 |
+| 开发完了要测试 | 门禁检查(QG-开发) → 协调testing | 跨智能体 |
+| 测试通过了要上线 | 门禁检查(QG-交付) → 协调delivery | 跨智能体 |
 | 只做排期 | project-plan-workflow(Stage 3) | 单步骤 |
 | 只更新进度 | project-track-workflow(Stage 1-2) | 单步骤 |
 | 只写周报 | project-track-workflow(Stage 5) | 单步骤 |

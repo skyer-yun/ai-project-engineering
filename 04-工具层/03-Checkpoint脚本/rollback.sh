@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # rollback.sh — 回滚到指定 Checkpoint
-# 配合 snapshot.sh 使用，详见 ../../01-标准层/03-质量门禁QG-D/S/B/Ship.md §六
+# 配合 snapshot.sh 使用，详见 ../../01-标准层/03-质量门禁QG-需求至QG-交付.md §六
 #
 # 用法：
 #   ./rollback.sh --to <tag-timestamp>

@@ -1,8 +1,10 @@
 # 阶段交接契约 Schema
 
-> **定位**：本文件是「DSBL 阶段间交接契约 YAML Schema」的**唯一权威源**。每个 QG 通过后必须生成此契约，下游阶段读取契约方可启动。
+> **定位**：本文件是「阶段间交接契约 YAML Schema」的**唯一权威源**。每个 QG 通过后必须生成此契约，下游阶段读取契约方可启动。
 >
-> **关联**：QG 门禁见 [03-质量门禁QG-D至QG-Ship.md](./03-质量门禁QG-D至QG-Ship.md)；Loop 签名见 [02-Loop微循环规范.md](./02-Loop微循环规范.md)。
+> **关联**：QG 门禁见 [03-质量门禁QG-需求至QG-交付.md](./03-质量门禁QG-需求至QG-交付.md)；Loop 签名见 [02-Loop微循环规范.md](./02-Loop微循环规范.md)。
+>
+> **命名说明**：YAML 字段值 `from_stage`/`to_stage` 使用内部代号 **D/S/B/Ship/L**（分别对应 需求/设计/开发/交付/复盘），简洁且校验工具稳定；中文别名作兼容值。
 
 ---
 
@@ -30,25 +32,25 @@ handoff:
   generated_at: "2026-07-01T10:00:00+08:00"
   generated_by: "{生成者，工具中立：人名/AI 工具名}"
 
-  # —— 阶段流转 ——
+  # —— 阶段流转（内部代号：D=需求 / S=设计 / B=开发 / Ship=交付 / L=复盘）——
   from_stage: D              # D / S / B / Ship / L
   to_stage: S
-  quality_gate: QG-D         # 对应的 QG 名
+  quality_gate: QG-D         # QG-D=QG-需求 / QG-S=QG-设计 / QG-B=QG-开发 / QG-Ship=QG-交付
   gate_status: passed        # passed / failed / escalated
 
   # —— 输出产物（工具中立：只描述，不绑工具）——
   output_artifacts:
     - name: "需求分析报告"
-      path: "项目文档/{项目}/D-Discover/需求分析报告-v1.0.md"
+      path: "项目文档/{项目}/需求/需求分析报告-v1.0.md"
       version: "v1.0"
       hash: "sha256:..."     # 可选，用于完整性校验
     - name: "干系人清单"
-      path: "项目文档/{项目}/D-Discover/干系人清单-v1.0.md"
+      path: "项目文档/{项目}/需求/干系人清单-v1.0.md"
       version: "v1.0"
 
   # —— Loop 签名链（阶段内微循环记录）——
   loop_signs:
-    - stage: D
+    - stage: D               # 内部代号；中文别名"需求"等价
       iterations: 3
       final_eval:
         requirement_completeness: 0.92
@@ -57,7 +59,7 @@ handoff:
       reflect_passed: true
       exit_met: true
 
-  # —— 角色交接 ——
+  # —— 逻辑角色交接（签字用，工种映射见 01-五阶段定义.md）——
   handoff:
     to_role: "Builder"       # Spec-Writer / Builder / Reviewer / Shipper / Keeper 之一
     from_role: "Spec-Writer"
@@ -90,9 +92,9 @@ handoff:
 
 | 字段 | 取值 | 说明 |
 |------|------|------|
-| `from_stage` | D/S/B/Ship/L | 上游阶段名 |
-| `to_stage` | D/S/B/Ship/L | 下游阶段名（顺序原则：D→S→B→Ship→L） |
-| `quality_gate` | QG-D/QG-S/QG-B/QG-Ship | 对应门禁 |
+| `from_stage` | D/S/B/Ship/L | 上游阶段代号（D=需求 / S=设计 / B=开发 / Ship=交付 / L=复盘） |
+| `to_stage` | D/S/B/Ship/L | 下游阶段名（顺序原则：需求→设计→开发→交付→复盘） |
+| `quality_gate` | QG-D/QG-S/QG-B/QG-Ship | 对应门禁（中文名：QG-需求/QG-设计/QG-开发/QG-交付） |
 | `gate_status` | passed/failed/escalated | 门禁状态 |
 
 ### 3.2 产物字段
@@ -109,8 +111,8 @@ handoff:
 
 ### 3.4 角色字段
 
-- `to_role` / `from_role` 取五角色之一：Spec-Writer / Builder / Reviewer / Shipper / Keeper。
-- 角色与工具解耦——具体的 AI 工具/人记录在 `tool_used`。
+- `to_role` / `from_role` 取方法论逻辑层 5 角色之一：Spec-Writer（需求规范师）/ Builder（构建师）/ Reviewer（审查师）/ Shipper（交付师）/ Keeper（统筹师）。
+- 角色与工具/工种解耦——具体的 AI 工具/人记录在 `tool_used`，工种映射见 [01-五阶段定义.md](./01-五阶段定义.md)。
 
 ### 3.5 HITL 签名字段
 

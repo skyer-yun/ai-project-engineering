@@ -121,6 +121,19 @@
   }
   .group-title .count { color: var(--text-3); font-size: 12px; font-weight: normal; margin-left: 8px; }
 
+  /* 阶段 + QG 徽章（v1.1） */
+  .kpi-badges { margin-top: 4px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .badge { display: inline-block; padding: 1px 6px; font-size: 10px; border-radius: 3px; color: #fff; cursor: default; text-decoration: none; }
+  .badge.stage-D { background: #2563eb; }
+  .badge.stage-S { background: #7c3aed; }
+  .badge.stage-B { background: #0891b2; }
+  .badge.stage-Ship { background: #c2410c; }
+  .badge.stage-L { background: #15803d; }
+  .badge.stage-All { background: #475569; }
+  .badge.qg { background: #be123c; }
+  .badge.qg-none { background: #94a3b8; }
+  .badge.collect { background: #334155; font-size: 9px; }
+
   /* 趋势图 */
   .chart-area {
     background: var(--card); border: 1px solid var(--border);
@@ -184,8 +197,8 @@
     <button onclick="openProjModal()" class="secondary">+ 新增项目</button>
     <button onclick="resetAll()" class="secondary">重置</button>
   </div>
-  <h1>Loop 度量看板 v1.0</h1>
-  <div class="meta">基于 6 工种 Playbook 第 7 节 38 条 KPI · 多项目对比 · 时间趋势 · localStorage 持久化</div>
+  <h1>Loop 度量看板 v1.1</h1>
+  <div class="meta">基于 5 角色 × 5 阶段双维度 45 条 KPI · 多项目对比 · 时间趋势 · localStorage 持久化</div>
 </header>
 
 <div class="container">
@@ -207,15 +220,14 @@
     <span class="hint">（数据存储在浏览器 localStorage，刷新不丢失）</span>
   </div>
 
-  <!-- 工种 Tabs -->
+  <!-- 角色 Tabs -->
   <div class="tabs" id="tabs">
-    <div class="tab active" data-group="all" onclick="switchTab('all')">总览（38 KPI）</div>
-    <div class="tab" data-group="presales" onclick="switchTab('presales')">售前（8）</div>
-    <div class="tab" data-group="product" onclick="switchTab('product')">产品（6）</div>
-    <div class="tab" data-group="dev" onclick="switchTab('dev')">研发（6）</div>
-    <div class="tab" data-group="testing" onclick="switchTab('testing')">测试（6）</div>
-    <div class="tab" data-group="delivery" onclick="switchTab('delivery')">交付（6）</div>
-    <div class="tab" data-group="pm" onclick="switchTab('pm')">PM（6）</div>
+    <div class="tab active" data-group="all" onclick="switchTab('all')">总览（45 KPI）</div>
+    <div class="tab" data-group="spec_writer" onclick="switchTab('spec_writer')">需求规范师（9）</div>
+    <div class="tab" data-group="builder" onclick="switchTab('builder')">构建师（10）</div>
+    <div class="tab" data-group="reviewer" onclick="switchTab('reviewer')">审查师（8）</div>
+    <div class="tab" data-group="shipper" onclick="switchTab('shipper')">交付师（9）</div>
+    <div class="tab" data-group="keeper" onclick="switchTab('keeper')">统筹师（9）</div>
     <div class="tab" data-group="projects" onclick="switchTab('projects')">项目管理</div>
   </div>
 
@@ -304,65 +316,74 @@
 </div>
 
 <footer>
-  Loop 度量看板 v1.0 / 2026-06-30 · 单文件原生 HTML · 数据本地存储 · 配合 6 工种 Playbook 使用
+  Loop 度量看板 v1.1 / 2026-07-06 · 单文件原生 HTML · 数据本地存储 · 配合 5 角色 Playbook 使用
 </footer>
 
 <script>
 /* ========================================================================
- * KPI 定义（来自 6 工种 Playbook 第 7 节，共 38 条）
+ * KPI 定义（v1.1：5 角色 × 5 阶段双维度，共 45 条）
  * type: percent (0-1) / count (整数) / score (1-5) / bool / hours
  * direction: up (越高越好) / down (越低越好)
+ * stage: D / S / B / Ship / L / All（全程）
+ * qg: QG-D / QG-S / QG-B / QG-Ship / -（无）
+ * role: 5 逻辑角色之一（与 group key 对齐）
+ * collect_method: 数据采集方式
  * ====================================================================== */
 const KPI_GROUPS = [
-  { key: 'presales', name: '售前', items: [
-    { id: 'presales.requirements_coverage', name: '需求覆盖率', desc: '客户原始需求 → 结构化条目', target: '≥ 0.95', type: 'percent', direction: 'up' },
-    { id: 'presales.chapters_completeness', name: '方案章完整度', desc: '11 章 / 7 章 / 8 章完整度', target: '1.0', type: 'percent', direction: 'up' },
-    { id: 'presales.bid_response_rate', name: '投标评分项覆盖', desc: '招标文件 → 响应条目', target: '≥ 0.98', type: 'percent', direction: 'up' },
-    { id: 'presales.solution_depth', name: '方案深度（架构图）', desc: '是否含 4 层架构图', target: 'true', type: 'bool', direction: 'up' },
-    { id: 'presales.tech_stack_match', name: '技术栈合规', desc: '是否命中企业白名单', target: 'true', type: 'bool', direction: 'up' },
-    { id: 'presales.risk_disclosure', name: '风险披露', desc: '高/中风险条目数', target: '0 P0', type: 'count', direction: 'down' },
-    { id: 'presales.demo_prd_consistency', name: 'Demo 与方案一致率', desc: '页面/字段一致度', target: '≥ 0.9', type: 'percent', direction: 'up' },
-    { id: 'presales.iteration_count', name: 'Loop 迭代次数', desc: '本节点平均迭代轮数', target: '2-4', type: 'count', direction: 'down' }
+  { key: 'spec_writer', name: '需求规范师（Spec-Writer）', items: [
+    { id: 'sw.requirements_coverage', name: '需求覆盖率', desc: '客户原始需求 → 结构化条目', target: '≥ 0.9', type: 'percent', direction: 'up', stage: 'D', qg: 'QG-D', role: 'spec_writer', collect_method: '需求矩阵人工核对' },
+    { id: 'sw.stakeholder_signed', name: '干系人签字完整度', desc: '应签字干系人实际签字比例', target: '1.0', type: 'percent', direction: 'up', stage: 'D', qg: 'QG-D', role: 'spec_writer', collect_method: '签字记录' },
+    { id: 'sw.scenario_coverage', name: '场景覆盖率', desc: '核心业务场景被需求覆盖', target: '≥ 0.9', type: 'percent', direction: 'up', stage: 'D', qg: 'QG-D', role: 'spec_writer', collect_method: '场景矩阵' },
+    { id: 'sw.prd_completeness', name: 'PRD 12 部分完整度', desc: '标准 PRD 章节齐全', target: '1.0', type: 'percent', direction: 'up', stage: 'S', qg: 'QG-S', role: 'spec_writer', collect_method: 'PRD 模板勾选' },
+    { id: 'sw.ac_testable_rate', name: 'AC 可测试率', desc: '验收标准可测试比例', target: '≥ 0.9', type: 'percent', direction: 'up', stage: 'S', qg: 'QG-S', role: 'spec_writer', collect_method: 'AC 评审记录' },
+    { id: 'sw.review_pass_rate', name: '需求评审通过率', desc: 'PRD/需求文档一次评审通过', target: '≥ 0.95', type: 'percent', direction: 'up', stage: 'S', qg: 'QG-S', role: 'spec_writer', collect_method: '评审会记录' },
+    { id: 'sw.change_traceability', name: '需求变更追溯率', desc: '变更是否追溯至原始需求', target: '1.0', type: 'percent', direction: 'up', stage: 'All', qg: '-', role: 'spec_writer', collect_method: '变更登记册' },
+    { id: 'sw.customer_req_response', name: '客户原始需求响应率', desc: '客户原始条目 100% 响应', target: '1.0', type: 'percent', direction: 'up', stage: 'D', qg: 'QG-D', role: 'spec_writer', collect_method: '需求应答矩阵' },
+    { id: 'sw.bid_response_rate', name: '投标应答覆盖率', desc: '招标文件 → 响应条目', target: '1.0', type: 'percent', direction: 'up', stage: 'D', qg: 'QG-D', role: 'spec_writer', collect_method: '投标应答矩阵' }
   ]},
-  { key: 'product', name: '产品', items: [
-    { id: 'product.prd_completeness', name: 'PRD 12 部分完整度', desc: '标准 PRD 章节齐全', target: '1.0', type: 'percent', direction: 'up' },
-    { id: 'product.part7_depth', name: 'Part7 五维达标率', desc: 'P0 模块界面级', target: '≥ 0.95', type: 'percent', direction: 'up' },
-    { id: 'product.ac_testable_rate', name: 'AC 可测试率', desc: '验收标准可测试比例', target: '≥ 0.9', type: 'percent', direction: 'up' },
-    { id: 'product.ac_total', name: 'AC 条目数', desc: '验收标准总数', target: '按模块', type: 'count', direction: 'up' },
-    { id: 'product.demo_prd_consistency', name: 'Demo 与 PRD 一致率', desc: '字段/交互一致', target: '≥ 0.95', type: 'percent', direction: 'up' },
-    { id: 'product.requirement_change_count', name: '需求变更次数', desc: 'PRD 冻结后变更', target: '≤ 3', type: 'count', direction: 'down' }
+  { key: 'builder', name: '构建师（Builder）', items: [
+    { id: 'bd.unit_coverage_core', name: '核心代码单测覆盖', desc: 'P0 模块 line coverage', target: '≥ 0.9', type: 'percent', direction: 'up', stage: 'B', qg: 'QG-B', role: 'builder', collect_method: 'CI 自动采集' },
+    { id: 'bd.unit_coverage_general', name: '一般代码单测覆盖', desc: '全量 line coverage', target: '≥ 0.7', type: 'percent', direction: 'up', stage: 'B', qg: 'QG-B', role: 'builder', collect_method: 'CI 自动采集' },
+    { id: 'bd.lint_critical', name: 'Lint Critical', desc: 'P0/P1 静态缺陷', target: '0', type: 'count', direction: 'down', stage: 'B', qg: 'QG-B', role: 'builder', collect_method: 'Lint 工具' },
+    { id: 'bd.p0_p1_defects', name: 'P0/P1 缺陷', desc: '编码阶段引入', target: '0', type: 'count', direction: 'down', stage: 'B', qg: 'QG-B', role: 'builder', collect_method: '缺陷库' },
+    { id: 'bd.plan_mode_compliance', name: 'Plan Mode 遵守率', desc: '先 Plan 后 Execute 比例', target: '1.0', type: 'percent', direction: 'up', stage: 'B', qg: 'QG-B', role: 'builder', collect_method: 'ADR 归档' },
+    { id: 'bd.atomic_commit_rate', name: '原子提交比例', desc: '小步提交 / 总提交', target: '≥ 0.9', type: 'percent', direction: 'up', stage: 'B', qg: 'QG-B', role: 'builder', collect_method: 'Git 日志分析' },
+    { id: 'bd.integration_pass_rate', name: '联调接口 Pass 率', desc: '接口契约对齐比例', target: '≥ 0.95', type: 'percent', direction: 'up', stage: 'B', qg: 'QG-B', role: 'builder', collect_method: '联调报告' },
+    { id: 'bd.code_review_close_rate', name: '代码审查 Issue 闭环率', desc: '审查 Issue 关闭比例', target: '1.0', type: 'percent', direction: 'up', stage: 'B', qg: 'QG-B', role: 'builder', collect_method: 'Code Review 工具' },
+    { id: 'bd.arch_doc_completeness', name: '架构文档完整度', desc: '4 层架构图 + ADR 齐全', target: '1.0', type: 'percent', direction: 'up', stage: 'S', qg: 'QG-S', role: 'builder', collect_method: '架构评审' },
+    { id: 'bd.detail_design_coverage', name: '详设覆盖核心模块率', desc: '核心模块有详设', target: '1.0', type: 'percent', direction: 'up', stage: 'S', qg: 'QG-S', role: 'builder', collect_method: '详设文档清单' }
   ]},
-  { key: 'dev', name: '研发', items: [
-    { id: 'dev.unit_coverage_core', name: '核心代码单测覆盖', desc: 'P0 模块 line coverage', target: '≥ 0.9', type: 'percent', direction: 'up' },
-    { id: 'dev.unit_coverage_general', name: '通用代码单测覆盖', desc: '全量 line coverage', target: '≥ 0.75', type: 'percent', direction: 'up' },
-    { id: 'dev.lint_critical', name: 'Lint Critical', desc: 'P0/P1 静态缺陷', target: '0', type: 'count', direction: 'down' },
-    { id: 'dev.contract_consistency', name: '契约一致性', desc: 'API 实现与 OpenAPI 一致率', target: '1.0', type: 'percent', direction: 'up' },
-    { id: 'dev.p0_p1_defects', name: 'P0/P1 缺陷', desc: '编码阶段引入', target: '0', type: 'count', direction: 'down' },
-    { id: 'dev.atomic_commit_rate', name: '原子提交率', desc: '小步提交比例', target: '≥ 0.8', type: 'percent', direction: 'up' }
+  { key: 'reviewer', name: '审查师（Reviewer）', items: [
+    { id: 'rv.req_review_pass', name: '需求评审通过率', desc: '需求文档评审通过', target: '≥ 0.95', type: 'percent', direction: 'up', stage: 'D', qg: 'QG-D', role: 'reviewer', collect_method: '评审记录' },
+    { id: 'rv.arch_review_pass', name: '架构评审通过率', desc: '架构文档评审通过', target: '≥ 0.95', type: 'percent', direction: 'up', stage: 'S', qg: 'QG-S', role: 'reviewer', collect_method: '评审记录' },
+    { id: 'rv.code_review_coverage', name: '代码审查覆盖率', desc: '提交被审查比例', target: '1.0', type: 'percent', direction: 'up', stage: 'B', qg: 'QG-B', role: 'reviewer', collect_method: 'Git + Review 工具' },
+    { id: 'rv.testcase_review_pass', name: '测试用例评审通过率', desc: '用例评审一次通过', target: '≥ 0.95', type: 'percent', direction: 'up', stage: 'Ship', qg: 'QG-Ship', role: 'reviewer', collect_method: '用例评审' },
+    { id: 'rv.ac_testable_rate', name: '验收标准可测试率', desc: 'AC 可执行测试比例', target: '≥ 0.9', type: 'percent', direction: 'up', stage: 'S', qg: 'QG-S', role: 'reviewer', collect_method: 'AC 评审' },
+    { id: 'rv.qg_first_pass_rate', name: 'QG 一次通过率', desc: '各 QG 一次评审通过', target: '≥ 0.9', type: 'percent', direction: 'up', stage: 'All', qg: '-', role: 'reviewer', collect_method: 'QG 记录' },
+    { id: 'rv.defect_escape_rate', name: '缺陷逃逸率', desc: '上线后发现 / 总缺陷', target: '≤ 0.05', type: 'percent', direction: 'down', stage: 'B', qg: 'QG-Ship', role: 'reviewer', collect_method: '缺陷库' },
+    { id: 'rv.risk_early_warning', name: '风险预警提前量', desc: '提前预警天数', target: '≥ 3', type: 'count', direction: 'up', stage: 'All', qg: '-', role: 'reviewer', collect_method: '风险登记册' }
   ]},
-  { key: 'testing', name: '测试', items: [
-    { id: 'testing.case_pass_rate', name: '用例通过率', desc: '通过用例 / 总用例', target: '≥ 0.95', type: 'percent', direction: 'up' },
-    { id: 'testing.p0_count', name: 'P0 缺陷数', desc: '阻塞性缺陷', target: '0', type: 'count', direction: 'down' },
-    { id: 'testing.p1_count', name: 'P1 缺陷数', desc: '严重缺陷', target: '0', type: 'count', direction: 'down' },
-    { id: 'testing.defect_escape_rate', name: '缺陷逃逸率', desc: '上线后发现的 / 总缺陷', target: '≤ 0.05', type: 'percent', direction: 'down' },
-    { id: 'testing.automation_coverage', name: '自动化覆盖', desc: '回归用例自动化比例', target: '≥ 0.7', type: 'percent', direction: 'up' },
-    { id: 'testing.performance_baseline_met', name: '性能基线达标', desc: 'P95 响应时间达标', target: 'true', type: 'bool', direction: 'up' }
+  { key: 'shipper', name: '交付师（Shipper）', items: [
+    { id: 'sp.case_pass_rate', name: '用例通过率', desc: '通过用例 / 总用例', target: '≥ 0.95', type: 'percent', direction: 'up', stage: 'Ship', qg: 'QG-Ship', role: 'shipper', collect_method: '测试报告' },
+    { id: 'sp.p0_p1_cleared', name: 'P0/P1 清零', desc: '上线前 P0/P1 缺陷', target: '1.0', type: 'percent', direction: 'up', stage: 'Ship', qg: 'QG-Ship', role: 'shipper', collect_method: '缺陷库' },
+    { id: 'sp.performance_met', name: '性能达标率', desc: '性能 AC 达标比例', target: '≥ 0.95', type: 'percent', direction: 'up', stage: 'Ship', qg: 'QG-Ship', role: 'shipper', collect_method: '性能测试报告' },
+    { id: 'sp.deploy_first_success', name: '一次部署成功率', desc: '首次部署是否成功', target: '≥ 0.95', type: 'percent', direction: 'up', stage: 'Ship', qg: 'QG-Ship', role: 'shipper', collect_method: '部署记录' },
+    { id: 'sp.acceptance_signed', name: '验收签字完成', desc: '客户验收 AC 签字', target: '1.0', type: 'percent', direction: 'up', stage: 'Ship', qg: 'QG-Ship', role: 'shipper', collect_method: '验收报告' },
+    { id: 'sp.customer_satisfaction', name: '客户满意度', desc: '1-5 分', target: '≥ 4.5', type: 'score', direction: 'up', stage: 'Ship', qg: 'QG-Ship', role: 'shipper', collect_method: '满意度问卷' },
+    { id: 'sp.training_pass_rate', name: '培训考核通过率', desc: '业务用户考核通过比例', target: '≥ 0.8', type: 'percent', direction: 'up', stage: 'Ship', qg: 'QG-Ship', role: 'shipper', collect_method: '考核记录' },
+    { id: 'sp.checkpoint_done', name: '部署前 Checkpoint 打点', desc: 'snapshot.sh 是否执行', target: '1.0', type: 'percent', direction: 'up', stage: 'Ship', qg: '-', role: 'shipper', collect_method: 'Checkpoint 脚本日志' },
+    { id: 'sp.doc_completeness', name: '文档完整度', desc: '运维/用户/培训材料', target: '1.0', type: 'percent', direction: 'up', stage: 'Ship', qg: '-', role: 'shipper', collect_method: '文档清单核对' }
   ]},
-  { key: 'delivery', name: '交付', items: [
-    { id: 'delivery.acceptance_pass_rate', name: '验收通过率', desc: '客户验收 AC 通过比例', target: '1.0', type: 'percent', direction: 'up' },
-    { id: 'delivery.customer_satisfaction', name: '客户满意度', desc: '1-5 分', target: '≥ 4.5', type: 'score', direction: 'up' },
-    { id: 'delivery.deploy_first_attempt_success', name: '一次部署成功', desc: '首次部署是否成功', target: 'true', type: 'bool', direction: 'up' },
-    { id: 'delivery.rollback_count', name: '回滚次数', desc: '生产环境回滚', target: '0', type: 'count', direction: 'down' },
-    { id: 'delivery.deploy_duration_hours', name: '部署耗时', desc: '小时（端到端）', target: '≤ 4h', type: 'hours', direction: 'down' },
-    { id: 'delivery.doc_completeness', name: '交付文档完整度', desc: '运维/用户/培训材料', target: '1.0', type: 'percent', direction: 'up' }
-  ]},
-  { key: 'pm', name: 'PM', items: [
-    { id: 'pm.plan_deviation', name: '计划偏差率', desc: '实际 vs 计划工时', target: '≤ ±10%', type: 'percent', direction: 'down' },
-    { id: 'pm.rework_count', name: '返工次数', desc: '产物返工', target: '≤ 3', type: 'count', direction: 'down' },
-    { id: 'pm.loop_avg_iterations', name: 'Loop 平均迭代', desc: 'N 节点平均迭代轮数', target: '2-4', type: 'count', direction: 'down' },
-    { id: 'pm.qg_pass_rate', name: '质量门禁通过率', desc: 'QG-D/S/B/Ship 一次通过', target: '≥ 0.9', type: 'percent', direction: 'up' },
-    { id: 'pm.hitl_compliance', name: 'HITL 合规率', desc: '应人审节点是否人审', target: '1.0', type: 'percent', direction: 'up' },
-    { id: 'pm.archive_completeness', name: '归档完整度', desc: '全程 产物齐全', target: '1.0', type: 'percent', direction: 'up' }
+  { key: 'keeper', name: '统筹师（Keeper）', items: [
+    { id: 'kp.plan_deviation', name: '计划偏差率', desc: '实际 vs 计划工时', target: '≤ 0.1', type: 'percent', direction: 'down', stage: 'All', qg: '-', role: 'keeper', collect_method: '工时系统' },
+    { id: 'kp.critical_path_zero_delay', name: '关键路径零延误', desc: '关键路径任务是否零延误', target: '1.0', type: 'percent', direction: 'up', stage: 'All', qg: '-', role: 'keeper', collect_method: 'WBS + 甘特' },
+    { id: 'kp.qg_pass_rate', name: '质量门禁通过率', desc: 'QG 一次通过比例', target: '≥ 0.9', type: 'percent', direction: 'up', stage: 'All', qg: '-', role: 'keeper', collect_method: 'QG 记录' },
+    { id: 'kp.risk_register_timely', name: '风险登记册维护及时率', desc: '风险发现后 24h 内登记', target: '1.0', type: 'percent', direction: 'up', stage: 'All', qg: '-', role: 'keeper', collect_method: '风险登记册' },
+    { id: 'kp.weekly_report_on_time', name: '周报准时率', desc: '每周五 18:00 前发出', target: '1.0', type: 'percent', direction: 'up', stage: 'All', qg: '-', role: 'keeper', collect_method: '周报发送记录' },
+    { id: 'kp.handoff_completeness', name: '跨智能体产物交接完整率', desc: 'handoff.yaml 字段齐全', target: '1.0', type: 'percent', direction: 'up', stage: 'All', qg: '-', role: 'keeper', collect_method: 'validate-handoff.sh' },
+    { id: 'kp.improvement_close_rate', name: '复盘改进项闭环率', desc: '改进项归档比例', target: '≥ 0.8', type: 'percent', direction: 'up', stage: 'L', qg: '-', role: 'keeper', collect_method: '复盘报告' },
+    { id: 'kp.knowledge_entries', name: '经验沉淀入库数', desc: '每项目经验条目', target: '≥ 3', type: 'count', direction: 'up', stage: 'L', qg: '-', role: 'keeper', collect_method: '知识库' },
+    { id: 'kp.knowledge_reuse_rate', name: '知识库复用率', desc: '跨项目复用比例', target: '≥ 0.3', type: 'percent', direction: 'up', stage: 'All', qg: '-', role: 'keeper', collect_method: '知识库统计' }
   ]}
 ];
 
@@ -473,7 +494,7 @@ function renderTopStats() {
   const period = getSelectedPeriod();
   const vals = (store.values[proj] && store.values[proj][period]) || {};
 
-  // 计算 6 工种平均达标率
+  // 计算 5 角色平均达标率
   const groupScores = KPI_GROUPS.map(g => {
     const items = g.items;
     let met = 0;
@@ -537,6 +558,14 @@ function renderKpiArea() {
 
 function renderKpiCard(kpi, mode) {
   const period = getSelectedPeriod();
+  const qgUrl = kpi.qg && kpi.qg !== '-' ? `../../01-标准层/03-质量门禁QG-需求至QG-交付.md` : '';
+  const qgCls = kpi.qg && kpi.qg !== '-' ? 'qg' : 'qg-none';
+  const qgTxt = kpi.qg || '-';
+  const badgesHtml = `<div class="kpi-badges">
+    <span class="badge stage-${kpi.stage}" title="阶段">${kpi.stage}</span>
+    ${qgUrl ? `<a class="badge ${qgCls}" href="${qgUrl}" target="_blank" title="跳转 QG checklist">${qgTxt}</a>` : `<span class="badge ${qgCls}" title="无关联 QG">${qgTxt}</span>`}
+    <span class="badge collect" title="采集方式">${kpi.collect_method || '—'}</span>
+  </div>`;
 
   if (mode === 'single') {
     const proj = getSelectedProject();
@@ -550,6 +579,7 @@ function renderKpiCard(kpi, mode) {
         <div class="name">${kpi.name}</div>
         <div class="desc">${kpi.desc}</div>
         <div class="target">目标：${kpi.target}</div>
+        ${badgesHtml}
         <table class="values"><tr><th>${period}</th><td class="value ${cls}">${fmtValue(kpi, raw)}</td></tr></table>
         ${noteHtml}
       </div>`;
@@ -557,18 +587,12 @@ function renderKpiCard(kpi, mode) {
 
   // 多项目横向对比
   const projCols = store.projects;
-  let rows = projCols.map(p => {
-    const vals = (store.values[p.code] && store.values[p.code][period]) || {};
-    const v = vals[kpi.id];
-    const raw = v ? v.value : '';
-    const cls = valueClass(kpi, raw);
-    return `<th>${p.code}</th><td class="value ${cls}">${fmtValue(kpi, raw)}</td>`;
-  }).join('');
   return `
     <div class="kpi-card">
       <div class="name">${kpi.name}</div>
       <div class="desc">${kpi.desc}</div>
       <div class="target">目标：${kpi.target}</div>
+      ${badgesHtml}
       <table class="values">
         ${projCols.map(p => {
           const vals = (store.values[p.code] && store.values[p.code][period]) || {};

@@ -7,10 +7,10 @@
 
 | 关键词 | 工作流 | 覆盖阶段 | 优先级 |
 |--------|--------|---------|--------|
-| 架构设计 / 系统架构 / 架构方案 / 微服务设计 / 技术架构 | architecture-workflow | N7 | 高 |
-| 详细设计 / 接口设计 / 数据模型 / 模块设计 / 时序图 | detailed-design-workflow | N7-N8 | 高 |
-| 编码 / 写代码 / 开发 / 实现 / 编程 / 写功能 | coding-workflow | N8 | 高 |
-| 代码审查 / Code Review / 代码评审 / 审查代码 / 代码质量 | review-workflow | N9 | 高 |
+| 架构设计 / 系统架构 / 架构方案 / 微服务设计 / 技术架构 | architecture-workflow | 设计·技术设计 | 高 |
+| 详细设计 / 接口设计 / 数据模型 / 模块设计 / 时序图 | detailed-design-workflow | 设计后半+开发前半 | 高 |
+| 编码 / 写代码 / 开发 / 实现 / 编程 / 写功能 | coding-workflow | 开发·编码 | 高 |
+| 代码审查 / Code Review / 代码评审 / 审查代码 / 代码质量 | review-workflow | 开发·代码审查 | 高 |
 
 ## 技能直接触发（日常路由）
 

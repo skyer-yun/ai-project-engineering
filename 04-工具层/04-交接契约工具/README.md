@@ -9,9 +9,9 @@
 
 | 文件 | 用途 |
 |------|------|
-| `signature-template.yaml` | DSBL 五阶段标准模板（含完整示例） |
+| `signature-template.yaml` | 五阶段标准模板（含完整示例） |
 | `validate-handoff.sh` | YAML 校验工具（必填字段 / 类型 / 合法值 / 下游读取规则） |
-| `examples/good-D-to-S.yaml` | 合法示例（D→S 交接，通过校验） |
+| `examples/good-D-to-S.yaml` | 合法示例（需求→设计 交接，通过校验） |
 | `examples/bad-missing-fields.yaml` | 非法示例（缺字段 + 类型错） |
 | `examples/bad-invalid-values.yaml` | 非法示例（阶段名/角色非法值） |
 
@@ -37,12 +37,12 @@ handoff:
 
   from_stage: D
   to_stage: S
-  quality_gate: QG-D
+  quality_gate: QG-需求
   gate_status: passed
 
   output_artifacts:
     - name: "需求分析报告"
-      path: "项目文档/{项目}/D-Discover/需求分析报告-v1.0.md"
+      path: "项目文档/{项目}/需求/需求分析报告-v1.0.md"
       version: "v1.0"
 
   loop_signs:
@@ -53,8 +53,8 @@ handoff:
       exit_met: true
 
   handoff:
-    to_role: "Builder"
-    from_role: "Spec-Writer"
+    to_role: "构建师（Builder）"
+    from_role: "需求规范师（Spec-Writer）"
 
   tool_used:
     primary: "Claude Code"
@@ -96,11 +96,11 @@ handoff:
 |------|------|------|
 | `schema_version` | string | 当前 "1.0" |
 | `from_stage` / `to_stage` | enum | D / S / B / Ship / L |
-| `quality_gate` | enum | QG-D / QG-S / QG-B / QG-Ship（L 无） |
+| `quality_gate` | enum | QG-需求 / QG-设计 / QG-开发 / QG-交付（L 无） |
 | `gate_status` | enum | passed / failed / escalated |
 | `output_artifacts` | list | 含 name/path/version |
 | `loop_signs` | list | 含 iterations/final_eval/reflect_passed/exit_met |
-| `handoff.from_role` / `to_role` | enum | Spec-Writer / Builder / Reviewer / Shipper / Keeper |
+| `handoff.from_role` / `to_role` | enum | 需求规范师（Spec-Writer） / 构建师（Builder） / 审查师（Reviewer） / 交付师（Shipper） / 统筹师（Keeper） |
 | `hitl_signature.mode` | enum | In / On / Fallback |
 | `hitl_signature.irreversibility` | enum | L1 / L2 / L3 / L4 |
 | `hitl_signature.approved_by` | list | 含 role/name/timestamp |
@@ -119,8 +119,8 @@ handoff:
 | 字段 | 合法值 |
 |------|--------|
 | `from_stage` / `to_stage` | D / S / B / Ship / L |
-| `quality_gate` | QG-D / QG-S / QG-B / QG-Ship |
-| `from_role` / `to_role` | Spec-Writer / Builder / Reviewer / Shipper / Keeper |
+| `quality_gate` | QG-需求 / QG-设计 / QG-开发 / QG-交付 |
+| `from_role` / `to_role` | 需求规范师（Spec-Writer） / 构建师（Builder） / 审查师（Reviewer） / 交付师（Shipper） / 统筹师（Keeper） |
 | `mode` | In / On / Fallback |
 | `irreversibility` | L1 / L2 / L3 / L4 |
 
@@ -130,12 +130,12 @@ handoff:
 
 | # | 上游 → 下游 | 阶段交接 | 关键 Eval | 必签角色 |
 |---|------------|----------|----------|---------|
-| 1 | 外部 → Spec-Writer | → D | — | 客户代表 |
-| 2 | Spec-Writer → Builder | D → S | requirement_completeness / scenario_coverage | Spec-Writer + 客户 + Keeper |
-| 3 | Builder（自循环 S） | S（前→后） | prd_completeness / arch_4view | Spec-Writer + Builder + Reviewer |
-| 4 | Builder → Shipper | B → Ship | unit_coverage / integration_pass_rate | Builder + Reviewer |
-| 5 | Shipper → Keeper | Ship → L | case_pass_rate / p0_p1=0 / acceptance_pass | Shipper + Reviewer + **客户** |
-| 6 | Keeper 归档 | L → 终态 | archive_completeness | Keeper + 各角色代表 |
+| 1 | 外部 → 需求规范师（Spec-Writer） | → D | — | 客户代表 |
+| 2 | 需求规范师（Spec-Writer） → 构建师（Builder） | D → S | requirement_completeness / scenario_coverage | 需求规范师（Spec-Writer） + 客户 + 统筹师（Keeper） |
+| 3 | 构建师（Builder）（自循环 S） | S（前→后） | prd_completeness / arch_4view | 需求规范师（Spec-Writer） + 构建师（Builder） + 审查师（Reviewer） |
+| 4 | 构建师（Builder） → 交付师（Shipper） | 开发 → 交付 | unit_coverage / integration_pass_rate | 构建师（Builder） + 审查师（Reviewer） |
+| 5 | 交付师（Shipper） → 统筹师（Keeper） | 交付 → 复盘 | case_pass_rate / p0_p1=0 / acceptance_pass | 交付师（Shipper） + 审查师（Reviewer） + **客户** |
+| 6 | 统筹师（Keeper） 归档 | L → 终态 | archive_completeness | 统筹师（Keeper） + 各角色代表 |
 
 ---
 
@@ -151,11 +151,11 @@ handoff:
 
 ```
 项目文档/{项目}/
-├── D-Discover/
-├── S-Spec/
-├── B-Build/
-├── S-Ship/
-├── L-Learn/
+├── 需求/
+├── 设计/
+├── 开发/
+├── 交付/
+├── 复盘/
 └── _handoffs/                    # ⭐ 全周期交接契约链
     ├── handoff-D-S-v1.0.yaml
     ├── handoff-S-B-v1.0.yaml
@@ -164,7 +164,7 @@ handoff:
     └── handoff-L-archive-v1.0.yaml
 ```
 
-**回溯链路**：当 Ship 部署失败时，按 Ship→B→S→D 反向查交接契约，定位是哪个阶段引入的问题。
+**回溯链路**：当 交付阶段 部署失败时，按 交付→开发→设计→需求 反向查交接契约，定位是哪个阶段引入的问题。
 
 ---
 
@@ -191,7 +191,8 @@ A: 校验只看 `from_stage`/`to_stage`/`gate_status`/`exit_met` 等阶段字段
 
 | 版本 | 日期 | 变更内容 |
 |------|------|---------|
-| v1.0 | | 初版：DSBL 五阶段 + 工具中立校验 |
+| v1.0 | | 初版：五阶段 + 工具中立校验 |
+| v1.1 | 2026-07-06 | 全仓一致性复盘 + 五角色/新 schema 对齐 |
 
 ---
 

@@ -29,21 +29,21 @@
 
 | 智能体 | 检测路径 | 覆盖阶段 | 协调关系 |
 |--------|---------|---------|---------|
-| 02-pre-sales-copilot | ~/.claude/skills/02-pre-sales-copilot/skill.md | N1-N3 | 上游：接收需求确认书 |
-| product-copilot | ~/.claude/skills/product-copilot/skill.md | N4-N7 | 上游：接收 PRD+Demo |
-| 04-dev-copilot | ~/.claude/skills/04-dev-copilot/skill.md | N5-N9 | 上游：接收源码+接口文档 |
-| 05-testing-copilot | ~/.claude/skills/05-testing-copilot/skill.md | N10-N12 | 上游：接收测试报告 |
-| 06-delivery-copilot | ~/.claude/skills/06-delivery-copilot/skill.md | N13-N15 | 上游：接收交付文档 |
+| 02-pre-sales-copilot | ~/.claude/skills/02-pre-sales-copilot/skill.md | 需求阶段（理解+分析+方案） | 上游：接收需求确认书 |
+| product-copilot | ~/.claude/skills/product-copilot/skill.md | 需求确认→设计前半 | 上游：接收 PRD+Demo |
+| 04-dev-copilot | ~/.claude/skills/04-dev-copilot/skill.md | 设计后半+开发 | 上游：接收源码+接口文档 |
+| 05-testing-copilot | ~/.claude/skills/05-testing-copilot/skill.md | 开发末+测试 | 上游：接收测试报告 |
+| 06-delivery-copilot | ~/.claude/skills/06-delivery-copilot/skill.md | 交付后半 | 上游：接收交付文档 |
 
 ### 交接产物追踪
 
 | 交接点 | 产物 | 检查文件 | 通过条件 |
 |--------|------|---------|---------|
-| QG-D(N3→N4) | 需求确认书+技术方案 | 项目文档/售前/ | 文件存在+内容完整 |
-| QG-S(N7→N8) | PRD+Demo+设计规范 | 项目文档/产品/ | PRD已评审+Demo已确认 |
-| QG-B(N10→N11) | 源码+接口文档+联调报告 | 项目文档/开发/ | 代码冻结+联调通过 |
-| QG-Ship(N12→N13) | 测试报告+缺陷清单 | 项目文档/测试/ | P0/P1清零+报告Pass |
-| QG-Ship(N15→N16) | 交付文档包+验收报告 | 项目文档/交付/ | 验收签字+文档完整 |
+| QG-需求(需求·方案→需求·确认) | 需求确认书+技术方案 | 项目文档/售前/ | 文件存在+内容完整 |
+| QG-设计(设计·技术设计→开发·编码) | PRD+Demo+设计规范 | 项目文档/产品/ | PRD已评审+Demo已确认 |
+| QG-开发(开发·联调→交付·测试策略) | 源码+接口文档+联调报告 | 项目文档/开发/ | 代码冻结+联调通过 |
+| QG-交付(交付·测试执行→交付·部署) | 测试报告+缺陷清单 | 项目文档/测试/ | P0/P1清零+报告Pass |
+| QG-交付(交付·文档→复盘) | 交付文档包+验收报告 | 项目文档/交付/ | 验收签字+文档完整 |
 
 ## 降级策略
 

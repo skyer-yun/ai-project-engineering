@@ -1,6 +1,6 @@
 # FAQ - 常见问题
 
-> **方法论**：DSBL 五阶段 × Loop 微循环 × 五角色 × HITL × 工具中立
+> **方法论**：五阶段 × Loop 微循环 × 五角色 × HITL × 工具中立
 
 ---
 
@@ -8,7 +8,7 @@
 
 - [一、概念与架构](#一概念与架构)
 - [二、工具中立与适配](#二工具中立与适配)
-- [三、DSBL 阶段与 Loop 微循环](#三dsbl-阶段与-loop-微循环)
+- [三、阶段与 Loop 微循环](#三dsbl-阶段与-loop-微循环)
 - [四、HITL 模式选择](#四hitl-模式选择)
 - [五、Claude Code 使用](#五claude-code-使用)
 - [六、其他工具接入](#六其他工具接入)
@@ -24,32 +24,32 @@
 
 **A**：三层嵌套：
 - **外环**：项目级 Sprint（迭代骨架）
-- **中环**：DSBL 五阶段（Discover / Spec / Build / Ship / Learn）
+- **中环**：五阶段（需求（Discover）/ 设计（Spec）/ 开发（Build）/ 交付（Ship）/ 复盘（Learn））
 - **内环**：Loop 微循环（Plan / Act / Observe / Reflect / Exit）
 
 每阶段内跑 Loop 直到满足出口 QG，写 handoff.yaml 交接给下游角色。
 
-### Q2：DSBL 五阶段和瀑布式节点链的区别？
+### Q2：五阶段和瀑布式节点链的区别？
 
 **A**：
-| 维度 | 瀑布式节点链 | DSBL |
+| 维度 | 瀑布式节点链 | 五阶段 |
 |------|------------|------|
 | 颗粒度 | 16+ 个细粒度节点 | 5 阶段（每阶段内嵌 Loop 保持颗粒度） |
 | 切换灵活度 | 必须顺序走 | 按项目类型路由（瀑布/迭代/敏捷） |
 | 业界对齐 | 偏传统 | 对齐 AWS AI-DLC 三阶段主流共识 |
 | 阶段交接 | 节点级签名 | 阶段级 YAML 契约（schema 完整） |
 
-详见 `00-理论层/01-DSBL阶段模型与Loop微循环原理.md`。
+详见 `00-理论层/01-五阶段与Loop微循环原理.md`。
 
 ### Q3：5 角色和 copilot 是什么关系？
 
 **A**：
-- **5 角色**（Spec-Writer / Builder / Reviewer / Shipper / Keeper）：体系定义的逻辑角色
+- **5 角色**（需求规范师（Spec-Writer） / 构建师（Builder） / 审查师（Reviewer） / 交付师（Shipper） / 统筹师（Keeper））：体系定义的逻辑角色
 - **6 copilot**（pre-sales / product / dev / testing / delivery / project）：Claude-Code 参考实现
 
 **关键声明**（见 [06-参考实现/README.md](../06-参考实现/README.md)）：
-- 1 角色 = 多 copilot 可承担（Spec-Writer ← pre-sales + product）
-- 1 copilot = 可跨角色（dev-copilot 既做 Builder 又部分承担 Reviewer）
+- 1 角色 = 多 copilot 可承担（需求规范师（Spec-Writer） ← pre-sales + product）
+- 1 copilot = 可跨角色（dev-copilot 既做 构建师（Builder） 又部分承担 审查师（Reviewer））
 - copilot 是**参考样例**，不是标准；用户可用任意 AI 工具替代
 
 ### Q4：HITL 不可逆等级 L1-L4 怎么用？
@@ -60,14 +60,14 @@
 - **L3** 可逆但代价高（需求共识、方案、PRD）→ 强制 HITL-In
 - **L4** 不可逆（生产部署、DB 迁移、客户验收）→ 强制 HITL-In + 多人签
 
-完整 DSBL × HITL × 角色 交叉矩阵见 `03-执行层/03-HITL规则表.md`。
+完整 HITL × 角色 交叉矩阵见 `03-执行层/03-HITL规则表.md`。
 
-### Q5：必须按 D→S→B→Ship→L 顺序走吗？
+### Q5：必须按 需求→设计→开发→交付→复盘 顺序走吗？
 
-**A**：不一定。`00-理论层/01-DSBL阶段模型与Loop微循环原理.md` §项目类型路由给了 3 种走法：
-- **瀑布型**：D→S→B→Ship→L 全程一次
-- **迭代 MVP**：Sprint 1 只走 D/S 部分，后续 Sprint 补回 B/Ship
-- **敏捷型**：每 Sprint 走完整 S→B→Ship 闭环
+**A**：不一定。`00-理论层/01-五阶段与Loop微循环原理.md` §项目类型路由给了 3 种走法：
+- **瀑布型**：需求→设计→开发→交付→复盘 全程一次
+- **迭代 MVP**：Sprint 1 只走 需求/设计 部分，后续 Sprint 补回 开发/交付
+- **敏捷型**：每 Sprint 走完整 设计→开发→交付 闭环
 
 ---
 
@@ -116,7 +116,7 @@ grep -rn "Claude Code\|Codex\|Cursor" 01-标准层/ 00-理论层/  # 应仅在�
 
 ---
 
-## 三、DSBL 阶段与 Loop 微循环
+## 三、阶段与 Loop 微循环
 
 ### Q10：Loop 微循环 5 字段是什么？
 
@@ -135,18 +135,18 @@ grep -rn "Claude Code\|Codex\|Cursor" 01-标准层/ 00-理论层/  # 应仅在�
 
 分开避免「数字好看但产物错」的陷阱。详见 `01-标准层/02-Loop微循环规范.md`。
 
-### Q12：DSBL 和 Loop Engineering / 敏捷的关系？
+### Q12：五阶段 和 Loop Engineering / 敏捷的关系？
 
 **A**：
 | 维度 | Scrum/Kanban | Loop Engineering | 本体系 |
 |------|-------------|-----------------|--------|
-| 颗粒度 | Sprint（2-4 周） | 任务级 4 步 | Sprint × DSBL × Loop 5 字段 |
+| 颗粒度 | Sprint（2-4 周） | 任务级 4 步 | Sprint × Loop 5 字段 |
 | AI 协作 | 不涉及 | 核心设计 | 五角色 × HITL × QG |
 | 度量 | Velocity | — | 38 KPI + handoff.yaml 链 |
 | 风险管理 | 风险登记册 | — | 不可逆性矩阵 + Checkpoint |
 | 跨智能体 | 不涉及 | — | handoff YAML 强制交接 |
 
-**关系**：DSBL 嵌套在敏捷外环内，给每个 Sprint 提供阶段级工序标准和 AI 协作模式。
+**关系**：五阶段 嵌套在敏捷外环内，给每个 Sprint 提供阶段级工序标准和 AI 协作模式。
 
 ---
 
@@ -158,9 +158,9 @@ grep -rn "Claude Code\|Codex\|Cursor" 01-标准层/ 00-理论层/  # 应仅在�
 
 | L 级 | 不可逆性 | HITL 模式 | 代表阶段 |
 |------|---------|---------|---------|
-| L4 | 不可逆（生产部署/DB 迁移） | **In** | Ship 部署 / Ship 验收 |
-| L3 | 可逆但代价高 | **In** | D 共识 / S 方案 |
-| L2 | 可逆（产物文件） | **On / Fallback** | B 编码（关键模块 On，CRUD Fallback） |
+| L4 | 不可逆（生产部署/DB 迁移） | **In** | 交付阶段部署 / 交付阶段验收 |
+| L3 | 可逆但代价高 | **In** | 需求阶段共识 / 设计阶段方案 |
+| L2 | 可逆（产物文件） | **On / Fallback** | 开发阶段编码（关键模块 On，CRUD Fallback） |
 | L1 | 触发级 | — | 用户唤起 AI |
 
 完整交叉矩阵见 `03-执行层/03-HITL规则表.md`。
@@ -207,17 +207,17 @@ cd ai-project-engineering
 
 ### Q18：每个 copilot 的 skill.md §8 是什么？
 
-**A**：体系强制约束节（DSBL × HITL × QG × 交接契约），包含：
-- DSBL 阶段覆盖与 HITL 模式表
+**A**：体系强制约束节（HITL × QG × 交接契约），包含：
+- 阶段覆盖与 HITL 模式表
 - 阶段交接契约（handoff.yaml）处理规则
-- QG-D/S/B/Ship 引用
+- QG-需求/QG-设计/QG-开发/QG-交付 引用
 - 产物模板 + 工具引用
 
 让 Claude 真正执行 HITL/契约，不只停留在人读文档。
 
 ### Q19：6 copilot 是否必须全装？
 
-**A**：**不**。最小化部署只装 1 个（如 dev-copilot 走 Builder 角色），其余靠 Claude Code 原生路由。详见 [05-适配层/Claude-Code适配指南.md](../05-适配层/Claude-Code适配指南.md)。
+**A**：**不**。最小化部署只装 1 个（如 dev-copilot 走 构建师（Builder） 角色），其余靠 Claude Code 原生路由。详见 [05-适配层/Claude-Code适配指南.md](../05-适配层/Claude-Code适配指南.md)。
 
 ---
 
@@ -231,7 +231,7 @@ cd ai-project-engineering
 ```
 生成 `.cursorrules` + `.cursor/rules/{role}.mdc` + QG .mdc。详见 [05-适配层/Cursor适配指南.md](../05-适配层/Cursor适配指南.md)。
 
-Cursor 强项在 B 阶段（编码）。D（需求）和 Ship（部署）建议配合外部工具或 Claude-Code/Codex。
+Cursor 强项在 开发阶段（编码）。D（需求）和 Ship（部署）建议配合外部工具或 Claude-Code/Codex。
 
 ### Q21：Codex 怎么用？
 
@@ -245,9 +245,9 @@ Codex 用 AGENTS.md 约定而非 skill 包，模板/schema 原样可用。
 
 ### Q22：自研 Agent 怎么接入？
 
-**A**：参考 [05-适配层/自带工具适配指南.md](../05-适配层/自带工具适配指南.md) §六，把体系 5 份 Playbook 喂给 Agent，handoff.yaml 作为 Agent 间传递协议。
+**A**：参考 [05-适配层/自带工具适配指南.md](../05-适配层/自带工具适配指南.md) §六，把体系 6 份 Playbook 喂给 Agent，handoff.yaml 作为 Agent 间传递协议。
 
-最小实现 QG-D + QG-B 两关即可（QG-S/QG-Ship 可人工 checklist 兜底）。
+最小实现 QG-需求 + QG-开发 两关即可（QG-设计/QG-交付 可人工 checklist 兜底）。
 
 ---
 
@@ -318,7 +318,7 @@ output_artifacts / loop_signs / handoff (to_role+from_role) / hitl_signature
    项目文档/{项目}/
 
 # 看哪个文件 FAIL
-# 看哪个 DSBL 阶段缺 YAML（应有 D/S/B/Ship 完整链）
+# 看哪个 阶段缺 YAML（应有 需求/设计/开发/交付 完整链）
 ```
 
 ---
@@ -334,18 +334,18 @@ output_artifacts / loop_signs / handoff (to_role+from_role) / hitl_signature
 ### Q30：能添加新的角色/corps 吗？
 
 **A**：能。两条路径：
-1. **加角色**（体系扩展）：参考 `03-执行层/01-角色Playbook/` 5 份格式新增，但要更新 DSBL 覆盖矩阵
+1. **加角色**（体系扩展）：参考 `03-执行层/01-工种Playbook/` 5 份格式新增，但要更新 五阶段 覆盖矩阵
 2. **加 copilot**（参考实现扩展）：参考 `06-参考实现/copilots/` 结构新增，必填 §1 触发场景 + §8 体系契约 + §9 启动流程
 
 ### Q31：能修改 QG checklist 吗？
 
-**A**：能。编辑 `01-标准层/03-质量门禁QG-D至QG-Ship.md`。但注意：
+**A**：能。编辑 `01-标准层/03-质量门禁QG-需求至QG-交付.md`。但注意：
 - **修改即权威源**——其他位置全部引用本文件
 - 修改后跑一遍 grep 确认无矛盾：`grep -rn "QG-" 03-执行层/ 06-参考实现/`
 
 ### Q32：能换 PRD 模板吗？
 
-**A**：`02-产物层/S-Spec/PRD模板.md` 是唯一权威源。修改本文件即生效，但保留章节骨架（其他角色依赖此结构）。
+**A**：`02-产物层/设计/PRD模板.md` 是唯一权威源。修改本文件即生效，但保留章节骨架（其他角色依赖此结构）。
 
 示例项目示例不要写回模板正文，留在 `02-产物层/附录-示例项目示例集.md`。
 

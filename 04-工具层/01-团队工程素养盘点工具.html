@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>团队工程素养盘点 · Loop 推广准入评估 v2</title>
+<title>团队工程素养盘点 · Loop 推广准入评估 v2.1</title>
 <style>
   :root {
     --primary: #165DFF;
@@ -496,9 +496,9 @@
 <div class="container">
 
   <header>
-    <h1>团队工程素养盘点 · Loop 推广准入评估 v2</h1>
-    <div class="subtitle">3 敏捷 + 3 AI 特有 共 6 维度 · 个人评估 + 团队汇总 + 雷达图 + CSV 批量</div>
-    <div class="meta">配套：《Loop升级版全景图 v1》/《全程 统一阶段定义 v2》 · v2.0 · 2026-06-29</div>
+    <h1>团队工程素养盘点 · Loop 推广准入评估 v2.1</h1>
+    <div class="subtitle">3 敏捷 + 5 AI 时代（含 A4 阶段适配 + A5 角色专注）共 8 维度 · 个人评估 + 团队汇总 + 雷达图 + 角色推荐 + CSV 批量</div>
+    <div class="meta">配套：《Loop升级版全景图 v1》/《全程 统一阶段定义 v2》/《五角色 Playbook》 · v2.1 · 2026-07-06</div>
   </header>
 
   <div class="tabs">
@@ -600,7 +600,7 @@
     </div>
 
     <div class="section-title">
-      AI 时代新维度 <span class="badge">3 项 · 共 15 分 · Loop 推广关键</span>
+      AI 时代新维度 <span class="badge">5 项 · 共 25 分 · Loop 推广关键（A4 阶段适配 / A5 角色专注）</span>
     </div>
 
     <div class="dim-card" data-dim="A1">
@@ -663,18 +663,58 @@
       </div>
     </div>
 
+    <div class="dim-card" data-dim="A4">
+      <div class="dim-header">
+        <div><span class="dim-title">A4 · DSBL 阶段适配能力</span><span class="dim-tag tag-ai">AI 特有</span></div>
+      </div>
+      <div class="dim-desc">能否在 D/S/B/Ship/L 五阶段中独立跑通 Loop 微循环（Plan→Act→Observe→Reflect→Exit），跨越几个阶段</div>
+      <div class="anchors">
+        <div class="anchor-row low"><span class="anchor-label">1 分</span><span class="anchor-text">只能跑 1 个阶段（如仅 D 或仅 B 编码），阶段切换需要他人接管</span></div>
+        <div class="anchor-row mid"><span class="anchor-label">3 分</span><span class="anchor-text">能独立跑通 3 个阶段，跨阶段交接需 PM 协调</span></div>
+        <div class="anchor-row high"><span class="anchor-label">5 分</span><span class="anchor-text">能独立跑通 D+S+B+Ship+L 全程，会签 handoff 契约</span></div>
+      </div>
+      <div class="score-selector">
+        <button class="score-pill" data-score="1">1</button>
+        <button class="score-pill" data-score="2">2</button>
+        <button class="score-pill" data-score="3">3</button>
+        <button class="score-pill" data-score="4">4</button>
+        <button class="score-pill" data-score="5">5</button>
+        <span class="score-label">点击打分</span>
+      </div>
+    </div>
+
+    <div class="dim-card" data-dim="A5">
+      <div class="dim-header">
+        <div><span class="dim-title">A5 · 角色专注度</span><span class="dim-tag tag-ai">AI 特有</span></div>
+      </div>
+      <div class="dim-desc">在五角色（Spec-Writer / Builder / Reviewer / Shipper / Keeper）中是否有可复用的角色模板产出</div>
+      <div class="anchors">
+        <div class="anchor-row low"><span class="anchor-label">1 分</span><span class="anchor-text">角色意识模糊，不知道自己承担哪个逻辑角色</span></div>
+        <div class="anchor-row mid"><span class="anchor-label">3 分</span><span class="anchor-text">能承担某角色但需指导，无独立产出</span></div>
+        <div class="anchor-row high"><span class="anchor-label">5 分</span><span class="anchor-text">在某角色（如 Builder）有可复用模板/Prompt/Checklist 产出，可教同事</span></div>
+      </div>
+      <div class="score-selector">
+        <button class="score-pill" data-score="1">1</button>
+        <button class="score-pill" data-score="2">2</button>
+        <button class="score-pill" data-score="3">3</button>
+        <button class="score-pill" data-score="4">4</button>
+        <button class="score-pill" data-score="5">5</button>
+        <span class="score-label">点击打分</span>
+      </div>
+    </div>
+
     <div class="section-title">个人评估结果</div>
     <div class="result-card unscored" id="result-card">
       <div class="result-grid">
         <div>
           <div class="score-display">
-            <span id="score-num">—</span><span class="total"> / 30</span>
+            <span id="score-num">—</span><span class="total"> / 40</span>
           </div>
           <div id="tier-area">
             <div class="tier-label" style="background: var(--text-3); color: white;">待评估</div>
             <div class="tier-recommendation">
-              <strong>请完成上述 6 个维度打分</strong>
-              完成后显示分级、推广建议和个人雷达图。
+              <strong>请完成上述 8 个维度打分</strong>
+              完成后显示分级、推广建议、角色推荐和个人雷达图。
             </div>
           </div>
         </div>
@@ -704,14 +744,15 @@
       </div>
       <h3>三档分级与推广动作</h3>
       <ul>
-        <li><strong style="color:var(--success)">A 档 25-30（直接 Loop 推广）</strong>：W1 试点直接入选</li>
-        <li><strong style="color:var(--warning)">B 档 18-24（先强制规范）</strong>：Plan Mode/Hooks 1-2 周拉到 A 档</li>
-        <li><strong style="color:var(--danger)">C 档 &lt; 18（先抓敏捷基础）</strong>：AI 暂缓，先抓 P1-P3</li>
+        <li><strong style="color:var(--success)">A 档 33-40（直接 Loop 推广）</strong>：W1 试点直接入选</li>
+        <li><strong style="color:var(--warning)">B 档 24-32（先强制规范）</strong>：Plan Mode/Hooks 1-2 周拉到 A 档</li>
+        <li><strong style="color:var(--danger)">C 档 &lt; 24（先抓敏捷基础）</strong>：AI 暂缓，先抓 P1-P3</li>
       </ul>
-      <h3>关于这 6 个维度</h3>
+      <h3>关于这 8 个维度</h3>
       <ul>
         <li><strong>敏捷基础（P1-P3）</strong>：决定团队工程素养的"1"是否在</li>
         <li><strong>AI 特有（A1-A3）</strong>：决定 AI 那 30% 新工具能不能用起来</li>
+        <li><strong>A4 阶段适配 + A5 角色专注</strong>：决定能在五角色 Playbook 中承担什么角色</li>
         <li><strong>组合判断</strong>：P 高 A 低 → 补 AI 训练即可；<strong>A 高 P 低 → 反而危险</strong>（会用工具但工程素养不够，产出快但乱）</li>
       </ul>
     </div>
@@ -727,15 +768,15 @@
       </div>
       <div class="stat-card a">
         <div class="stat-val" id="stat-a">0</div>
-        <div class="stat-label">A 档（25-30）直接试点</div>
+        <div class="stat-label">A 档（33-40）直接试点</div>
       </div>
       <div class="stat-card b">
         <div class="stat-val" id="stat-b">0</div>
-        <div class="stat-label">B 档（18-24）先规范</div>
+        <div class="stat-label">B 档（24-32）先规范</div>
       </div>
       <div class="stat-card c">
         <div class="stat-val" id="stat-c">0</div>
-        <div class="stat-label">C 档（&lt;18）抓基础</div>
+        <div class="stat-label">C 档（&lt;24）抓基础</div>
       </div>
       <div class="stat-card">
         <div class="stat-val" id="stat-avg" style="color: var(--primary);">—</div>
@@ -779,14 +820,15 @@
               <th>项目/团队</th>
               <th>日期</th>
               <th>P1</th><th>P2</th><th>P3</th>
-              <th>A1</th><th>A2</th><th>A3</th>
+              <th>A1</th><th>A2</th><th>A3</th><th>A4</th><th>A5</th>
               <th>总分</th>
               <th>档位</th>
+              <th>角色推荐</th>
               <th>操作</th>
             </tr>
           </thead>
           <tbody id="team-tbody">
-            <tr><td colspan="13" class="empty-row">暂无数据。在「个人评估」页填好后点「保存到团队汇总」，或上方「批量导入 CSV」。</td></tr>
+            <tr><td colspan="16" class="empty-row">暂无数据。在「个人评估」页填好后点「保存到团队汇总」，或上方「批量导入 CSV」。</td></tr>
           </tbody>
         </table>
       </div>
@@ -795,15 +837,16 @@
     <div class="guide">
       <h3>CSV 格式说明</h3>
       <p style="margin-bottom:8px;">表头字段必须按此顺序，列名大小写敏感：</p>
-      <div class="csv-sample">姓名,评估方式,项目,P1,P2,P3,A1,A2,A3,日期
-张三,自评,中台项目,4,3,4,3,2,4,2026-06-29
-李四,主管评,中台项目,5,5,5,4,4,5,2026-06-29
-王五,同事评,中台项目,3,2,3,2,2,3,2026-06-29</div>
+      <div class="csv-sample">姓名,评估方式,项目,P1,P2,P3,A1,A2,A3,A4,A5,日期
+张三,自评,中台项目,4,3,4,3,2,4,3,3,2026-07-06
+李四,主管评,中台项目,5,5,5,4,4,5,5,5,2026-07-06
+王五,同事评,中台项目,3,2,3,2,2,3,2,1,2026-07-06</div>
       <ul>
-        <li><strong>P1-P3 / A1-A3</strong>：1-5 整数，超出范围自动裁剪</li>
+        <li><strong>P1-P3 / A1-A5</strong>：1-5 整数，超出范围自动裁剪</li>
         <li><strong>评估方式</strong>：自评 / PM 评 / 主管评 / 同事互评（可自定义）</li>
         <li><strong>日期</strong>：YYYY-MM-DD 格式，可空（默认今天）</li>
         <li><strong>姓名/项目</strong>：必填，空字符串会被标记为"未填"</li>
+        <li><strong>A4/A5 可空</strong>：兼容旧版 CSV（仅 6 维度）会自动补 0</li>
         <li><strong>Excel 编辑后另存为 CSV UTF-8</strong>，否则中文乱码</li>
       </ul>
       <h3>团队盘点使用流程</h3>
@@ -815,7 +858,7 @@
       </ul>
       <h3>数据存储说明</h3>
       <ul>
-        <li>所有数据存储在浏览器 <code>localStorage</code>（key：<code>team-skill-assessment-v2</code>），刷新不丢</li>
+        <li>所有数据存储在浏览器 <code>localStorage</code>（key：<code>team-skill-assessment-v2_1</code>），刷新不丢</li>
         <li>不同浏览器数据不互通，需手动导出 CSV 在不同设备间转移</li>
         <li>清空浏览器数据会丢失，重要数据请定期导出 CSV 归档</li>
       </ul>
@@ -824,7 +867,7 @@
   </div>
 
   <footer>
-    团队工程素养盘点工具 v2.0 · 单文件 HTML 自包含 · 数据本地存储不上传 · 基于 Loop Engineering 业界共识
+    团队工程素养盘点工具 v2.1 / 2026-07-06 · 单文件 HTML 自包含 · 数据本地存储不上传 · 基于 Loop Engineering 业界共识
   </footer>
 
 </div>
@@ -833,29 +876,30 @@
 
 <script>
 // ============ Data Model ============
-const DIMENSIONS = ['P1','P2','P3','A1','A2','A3'];
+const DIMENSIONS = ['P1','P2','P3','A1','A2','A3','A4','A5'];
 const DIM_NAMES = {
   P1: '产物规范', P2: '上下游准入', P3: '质量自检',
-  A1: 'Context', A2: 'Eval', A3: '工具规范'
+  A1: 'Context', A2: 'Eval', A3: '工具规范',
+  A4: '阶段适配', A5: '角色专注'
 };
-const STORAGE_KEY = 'team-skill-assessment-v2';
+const STORAGE_KEY = 'team-skill-assessment-v2_1';
 
-let currentScores = { P1:0, P2:0, P3:0, A1:0, A2:0, A3:0 };
+let currentScores = { P1:0, P2:0, P3:0, A1:0, A2:0, A3:0, A4:0, A5:0 };
 let teamData = loadTeam();
 
 const TIERS = [
-  { min: 25, key: 'a', name: 'A 档 · 直接 Loop 推广', color: 'success',
+  { min: 33, key: 'a', name: 'A 档 · 直接 Loop 推广', color: 'success',
     rec: '<strong>推荐动作</strong><ul>' +
       '<li>W1 直接入选试点（研发/测试任一工种）</li>' +
       '<li>无需额外培训，给 Playbook 即用</li>' +
       '<li>承担"放大器示范"角色，向 B 档同事辐射</li>' +
       '<li>W4 度量时作为基线对照组</li></ul>' },
-  { min: 18, key: 'b', name: 'B 档 · 先强制规范', color: 'warning',
+  { min: 24, key: 'b', name: 'B 档 · 先强制规范', color: 'warning',
     rec: '<strong>推荐动作</strong><ul>' +
       '<li>暂缓直接试点，先抓工具强制规范 1-2 周</li>' +
       '<li>启用 Claude Code Plan Mode（不可绕过）</li>' +
       '<li>启用 Git atomic commit + PreToolUse hook</li>' +
-      '<li>每两周复评，达到 A 档（25+）后纳入试点</li></ul>' },
+      '<li>每两周复评，达到 A 档（33+）后纳入试点</li></ul>' },
   { min: 0, key: 'c', name: 'C 档 · 先抓敏捷基础', color: 'danger',
     rec: '<strong>推荐动作</strong><ul>' +
       '<li>AI 工具暂缓（避免放大混乱）</li>' +
@@ -865,10 +909,32 @@ const TIERS = [
       '<li>注意：A 高 P 低者特别警惕（会用工具但工程素养不够，产出快但乱）</li></ul>' },
 ];
 
+// 角色推荐映射（A4 阶段适配 + A5 角色专注 + 各维度倾向）
+function recommendRole(s) {
+  const a4 = s.A4 || 0, a5 = s.A5 || 0;
+  const agile = s.P1 + s.P2 + s.P3;
+  const maxDim = DIMENSIONS.reduce((m,k) => s[k] > (s[m]||0) ? k : m, 'P1');
+  // 全程阶段适配 + 高角色专注 → 统筹师（Keeper）
+  if (a4 >= 4 && a5 >= 4 && agile >= 12) return '统筹师（Keeper）';
+  // 需求/产物维度突出 → Spec-Writer
+  if (s.P1 >= 4 && (s.A1 >= 4 || s.A2 >= 4) && a4 >= 3) return '需求规范师（Spec-Writer）';
+  // 高工具规范 + 代码/质量维度 → Builder
+  if ((s.A3 >= 4 || s.P3 >= 4) && a4 >= 3) return '构建师（Builder）';
+  // 质量自检 + Eval 能力突出 → Reviewer
+  if (s.P3 >= 4 && s.A2 >= 4) return '审查师（Reviewer）';
+  // 阶段适配好但角色不专注 → 交付师 / 待培养
+  if (a4 >= 3 && a5 <= 2) return '交付师（Shipper）方向 + 统筹师（Keeper）潜质';
+  // 默认：按最高分维度给方向
+  const map = { P1: '需求规范师（Spec-Writer）', P2: '统筹师（Keeper）', P3: '审查师（Reviewer）',
+    A1: '构建师（Builder）', A2: '审查师（Reviewer）', A3: '构建师（Builder）',
+    A4: '统筹师（Keeper）', A5: '待角色定锚（最高分维度：' + maxDim + '）' };
+  return map[maxDim] || '待角色定锚';
+}
+
 function getTier(total) { return TIERS.find(t => total >= t.min); }
 function calcTotal(s) { return DIMENSIONS.reduce((a, k) => a + (s[k]||0), 0); }
 function calcAgile(s) { return s.P1 + s.P2 + s.P3; }
-function calcAI(s) { return s.A1 + s.A2 + s.A3; }
+function calcAI(s) { return (s.A1||0) + (s.A2||0) + (s.A3||0) + (s.A4||0) + (s.A5||0); }
 
 function loadTeam() {
   try {
@@ -939,7 +1005,11 @@ function updatePersonalResult() {
 
   document.getElementById('tier-area').innerHTML =
     '<div class="tier-label">' + tier.name + '</div>' +
-    '<div class="tier-recommendation">' + tier.rec + '</div>';
+    '<div class="tier-recommendation">' + tier.rec + '</div>' +
+    '<div class="tier-recommendation" style="margin-top:8px;border-top:1px dashed var(--border);padding-top:8px;">' +
+      '<strong>角色推荐：</strong>' + recommendRole(currentScores) +
+      ' <span style="color:var(--text-3);font-size:12px;">（依据 A4 阶段适配 + A5 角色专注 + 各维度倾向，详见五角色 Playbook）</span>' +
+    '</div>';
 
   // Breakdown
   const breakdown = document.getElementById('breakdown');
@@ -968,7 +1038,7 @@ function drawRadar(svgId, scores, options = {}) {
   const cy = svg.viewBox.baseVal.height / 2;
   const maxR = Math.max(20, Math.min(cx, cy) - 60);
 
-  const angles = DIMENSIONS.map((_, i) => (-90 + i * 60) * Math.PI / 180);
+  const angles = DIMENSIONS.map((_, i) => (-90 + i * (360 / DIMENSIONS.length)) * Math.PI / 180);
 
   const ns = 'http://www.w3.org/2000/svg';
 
@@ -1109,9 +1179,10 @@ document.getElementById('btn-copy').addEventListener('click', () => {
   let md = '## 团队工程素养盘点结果\n\n';
   md += '- **被评估人**：' + emp + '\n- **评估方式**：' + type + '\n';
   md += '- **项目/团队**：' + proj + '\n- **评估日期**：' + date + '\n';
-  md += '- **总分**：' + total + ' / 30（' + tier.name + '）\n';
+  md += '- **总分**：' + total + ' / 40（' + tier.name + '）\n';
   md += '- **敏捷基础 P**：' + calcAgile(currentScores) + ' / 15\n';
-  md += '- **AI 特有 A**：' + calcAI(currentScores) + ' / 15\n\n';
+  md += '- **AI 时代 A**：' + calcAI(currentScores) + ' / 25\n';
+  md += '- **角色推荐**：' + recommendRole(currentScores) + '\n\n';
   md += '### 维度明细\n\n| 维度 | 得分 |\n|---|---|\n';
   DIMENSIONS.forEach(k => {
     md += '| ' + k + ' ' + DIM_NAMES[k] + ' | ' + currentScores[k] + ' / 5 |\n';
@@ -1153,18 +1224,21 @@ function renderTeam() {
   // Table
   const tbody = document.getElementById('team-tbody');
   if (!teamData.length) {
-    tbody.innerHTML = '<tr><td colspan="13" class="empty-row">暂无数据。在「个人评估」页填好后点「保存到团队汇总」，或上方「批量导入 CSV」。</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="16" class="empty-row">暂无数据。在「个人评估」页填好后点「保存到团队汇总」，或上方「批量导入 CSV」。</td></tr>';
   } else {
     tbody.innerHTML = teamData.slice().sort((x,y) => y.total - x.total).map(r => {
+      const role = recommendRole(r.scores);
       return '<tr>' +
         '<td class="col-name">' + escapeHtml(r.empName) + '</td>' +
         '<td>' + escapeHtml(r.evalType) + '</td>' +
         '<td>' + escapeHtml(r.projectName) + '</td>' +
         '<td>' + escapeHtml(r.evalDate) + '</td>' +
         '<td>' + r.scores.P1 + '</td><td>' + r.scores.P2 + '</td><td>' + r.scores.P3 + '</td>' +
-        '<td>' + r.scores.A1 + '</td><td>' + r.scores.A2 + '</td><td>' + r.scores.A3 + '</td>' +
+        '<td>' + (r.scores.A1||0) + '</td><td>' + (r.scores.A2||0) + '</td><td>' + (r.scores.A3||0) + '</td>' +
+        '<td>' + (r.scores.A4||0) + '</td><td>' + (r.scores.A5||0) + '</td>' +
         '<td style="font-weight:600;">' + r.total + '</td>' +
         '<td><span class="tier-tag ' + r.tier + '">' + r.tier.toUpperCase() + '</span></td>' +
+        '<td style="font-size:11px;color:var(--text-2);">' + escapeHtml(role) + '</td>' +
         '<td><button class="del-btn" data-id="' + r.id + '">删除</button></td>' +
       '</tr>';
     }).join('');
@@ -1193,7 +1267,7 @@ function renderTeam() {
   // Average radar
   const avgScores = {};
   DIMENSIONS.forEach(k => {
-    avgScores[k] = teamData.reduce((s, r) => s + r.scores[k], 0) / teamData.length;
+    avgScores[k] = teamData.reduce((s, r) => s + (r.scores[k]||0), 0) / teamData.length;
   });
   drawRadar('radar-team-avg', avgScores, { fill: 'rgba(22,93,255,0.25)', stroke: '#165DFF' });
 
@@ -1208,7 +1282,7 @@ function drawRadarAll(svgId, records) {
   const cx = svg.viewBox.baseVal.width / 2;
   const cy = svg.viewBox.baseVal.height / 2;
   const maxR = Math.max(20, Math.min(cx, cy) - 60);
-  const angles = DIMENSIONS.map((_, i) => (-90 + i * 60) * Math.PI / 180);
+  const angles = DIMENSIONS.map((_, i) => (-90 + i * (360 / DIMENSIONS.length)) * Math.PI / 180);
   const ns = 'http://www.w3.org/2000/svg';
 
   function el(tag, attrs) {
@@ -1269,10 +1343,10 @@ function drawRadarAll(svgId, records) {
 
 // ============ CSV Import / Export ============
 document.getElementById('btn-download-template').addEventListener('click', () => {
-  const csv = '姓名,评估方式,项目,P1,P2,P3,A1,A2,A3,日期\n' +
-    '张三,自评,中台项目,4,3,4,3,2,4,2026-06-29\n' +
-    '李四,主管评,中台项目,5,5,5,4,4,5,2026-06-29\n' +
-    '王五,同事评,中台项目,3,2,3,2,2,3,2026-06-29\n';
+  const csv = '姓名,评估方式,项目,P1,P2,P3,A1,A2,A3,A4,A5,日期\n' +
+    '张三,自评,中台项目,4,3,4,3,2,4,3,3,2026-07-06\n' +
+    '李四,主管评,中台项目,5,5,5,4,4,5,5,5,2026-07-06\n' +
+    '王五,同事评,中台项目,3,2,3,2,2,3,2,1,2026-07-06\n';
   downloadCsv(csv, '工程素养盘点-模板.csv');
   showToast('模板已下载');
 });
@@ -1335,7 +1409,7 @@ function parseCsv(text) {
 
   const header = parseLine(lines[0]).map(h => h.toLowerCase());
   const idx = {};
-  ['姓名','评估方式','项目','P1','P2','P3','A1','A2','A3','日期'].forEach(f => {
+  ['姓名','评估方式','项目','P1','P2','P3','A1','A2','A3','A4','A5','日期'].forEach(f => {
     idx[f] = header.indexOf(f.toLowerCase());
   });
 
@@ -1358,7 +1432,8 @@ function parseCsv(text) {
 
     const scores = {
       P1: getScore('P1'), P2: getScore('P2'), P3: getScore('P3'),
-      A1: getScore('A1'), A2: getScore('A2'), A3: getScore('A3')
+      A1: getScore('A1'), A2: getScore('A2'), A3: getScore('A3'),
+      A4: getScore('A4'), A5: getScore('A5')
     };
     if (DIMENSIONS.every(k => scores[k] === 0)) continue;
 
@@ -1385,13 +1460,15 @@ document.getElementById('btn-export-csv').addEventListener('click', () => {
     showToast('暂无数据可导出');
     return;
   }
-  let csv = '姓名,评估方式,项目,P1,P2,P3,A1,A2,A3,日期,敏捷小计,AI小计,总分,档位\n';
+  let csv = '姓名,评估方式,项目,P1,P2,P3,A1,A2,A3,A4,A5,日期,敏捷小计,AI小计,总分,档位,角色推荐\n';
   teamData.forEach(r => {
+    const role = recommendRole(r.scores);
     const row = [
       r.empName, r.evalType, r.projectName,
       r.scores.P1, r.scores.P2, r.scores.P3,
-      r.scores.A1, r.scores.A2, r.scores.A3,
-      r.evalDate, r.agileTotal, r.aiTotal, r.total, r.tier.toUpperCase()
+      (r.scores.A1||0), (r.scores.A2||0), (r.scores.A3||0), (r.scores.A4||0), (r.scores.A5||0),
+      r.evalDate, r.agileTotal, r.aiTotal, r.total, r.tier.toUpperCase(),
+      (role || '')
     ];
     csv += row.map(v => {
       const s = String(v);

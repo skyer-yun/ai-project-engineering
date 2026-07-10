@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# AI Project Engineering - Install Script (v1.0, DSBL × 工具中立)
+# AI Project Engineering - Install Script (v1.0, 工具中立)
 #
 # 体系标准层 + 产物层模板（工具中立）始终部署；参考实现按 --adapter 可选。
 #
@@ -52,12 +52,12 @@ deploy_templates() {
     # 产物层（模板）
     mkdir -p "$target/02-产物层"
     cp -r "$SCRIPT_DIR/02-产物层"/* "$target/02-产物层"/ 2>/dev/null || true
-    ok "02-产物层/ (DSBL 模板)"
+    ok "02-产物层/ (五阶段 模板)"
 
     # 执行层（角色 Playbook + HITL 规则）
     mkdir -p "$target/03-执行层"
     cp -r "$SCRIPT_DIR/03-执行层"/* "$target/03-执行层"/ 2>/dev/null || true
-    ok "03-执行层/ (5 角色 Playbook + HITL 规则)"
+    ok "03-执行层/ (6 工种 Playbook + HITL 规则；工种 ↔ 5 逻辑角色映射见 01-五阶段定义.md)"
 
     # 理论层
     mkdir -p "$target/00-理论层"
@@ -127,41 +127,48 @@ deploy_codex() {
 # AGENTS.md — 本项目 AI 协作约定（基于 ai-project-engineering 体系）
 
 ## 强制契约
-- 阶段定义：见 01-标准层/01-DSBL五阶段定义.md
+- 阶段定义：见 01-标准层/01-五阶段定义.md
 - Loop 微循环：见 01-标准层/02-Loop微循环规范.md
-- 质量门禁：见 01-标准层/03-质量门禁QG-D至QG-Ship.md
+- 质量门禁：见 01-标准层/03-质量门禁QG-需求至QG-交付.md
 - 交接契约：见 01-标准层/04-阶段交接契约Schema.md
 - HITL 规则：见 03-执行层/03-HITL规则表.md
 
 ## 角色路由
 | 用户意图 | 角色 | 加载 |
 |---------|------|------|
-| 需求/方案/PRD | Spec-Writer | .codex/roles/spec-writer.md |
-| 架构/编码/审查 | Builder | .codex/roles/builder.md |
-| 门禁/评审 | Reviewer | .codex/roles/reviewer.md |
-| 测试/部署/验收 | Shipper | .codex/roles/shipper.md |
-| 项目管理/复盘 | Keeper | .codex/roles/keeper.md |
+| 需求/方案/PRD | 需求规范师（Spec-Writer） | .codex/roles/spec-writer.md |
+| 架构/编码/审查 | 构建师（Builder） | .codex/roles/builder.md |
+| 门禁/评审 | 审查师（Reviewer） | .codex/roles/reviewer.md |
+| 测试/部署/验收 | 交付师（Shipper） | .codex/roles/shipper.md |
+| 项目管理/复盘 | 统筹师（Keeper） | .codex/roles/keeper.md |
 
 ## HITL 强制点
-- D（需求共识）：L3 → HITL-In
-- S（方案/架构）：L3 → HITL-In
-- Ship（生产部署）：L4 → HITL-In + 多人签
+- 需求阶段（需求共识）：L3 → HITL-In
+- 设计阶段（方案/架构）：L3 → HITL-In
+- 交付阶段（生产部署）：L4 → HITL-In + 多人签
 
 ## 阶段切换
-每完成一个 DSBL 阶段：跑 QG checklist → 写 handoff.yaml → git 提交 → 通知下游。
+每完成一个 阶段：跑 QG checklist → 写 handoff.yaml → git 提交 → 通知下游。
 EOF
     ok "AGENTS.md"
 
-    # 5 角色 placeholder（指向体系 Playbook）
+    # 5 角色 placeholder（指向体系 Playbook，Codex 角色映射到工种 Playbook；工种 ↔ 5 逻辑角色映射见 01-五阶段定义.md）
+    declare -A role_to_playbook=(
+        [spec-writer]="产品经理-Playbook.md"
+        [builder]="研发工程师-Playbook.md"
+        [reviewer]="研发工程师-Playbook.md"
+        [shipper]="交付工程师-Playbook.md"
+        [keeper]="项目经理-Playbook.md"
+    )
     for role in spec-writer builder reviewer shipper keeper; do
-        local playbook="$SCRIPT_DIR/03-执行层/01-角色Playbook/$(echo $role | sed 's/.*/\u&/' | sed 's/-//' | sed 's/specwriter/Spec-Writer/;s/builder/Builder/;s/reviewer/Reviewer/;s/shipper/Shipper/;s/keeper/Keeper/')-Playbook.md"
+        local playbook="$SCRIPT_DIR/03-执行层/01-工种Playbook/${role_to_playbook[$role]}"
         cat > "$project_root/.codex/roles/$role.md" <<EOF
 # $role 角色约定（Codex 适配）
 
 本角色完整 Playbook 见：
-$SCRIPT_DIR/03-执行层/01-角色Playbook/
+${playbook}
 
-按 DSBL 阶段执行：
+按阶段执行：
 1. 加载上游 handoff.yaml
 2. 按 02-产物层/{阶段}/ 模板生成产物
 3. 跑 QG checklist
@@ -196,25 +203,25 @@ globs: ["项目文档/**", "src/**", "handoff.yaml"]
 # 本项目 AI 协作约定（基于 ai-project-engineering 体系）
 
 ## 强制契约
-- 阶段定义：见 01-标准层/01-DSBL五阶段定义.md
+- 阶段定义：见 01-标准层/01-五阶段定义.md
 - Loop 微循环：见 01-标准层/02-Loop微循环规范.md
-- 质量门禁：见 01-标准层/03-质量门禁QG-D至QG-Ship.md
+- 质量门禁：见 01-标准层/03-质量门禁QG-需求至QG-交付.md
 - 交接契约：见 01-标准层/04-阶段交接契约Schema.md
 - HITL 规则：见 03-执行层/03-HITL规则表.md
 
 ## 角色路由（@加载对应 .mdc）
 | 用户意图 | 角色 | 加载 |
 |---------|------|------|
-| 需求/方案/PRD | Spec-Writer | @.cursor/rules/spec-writer.mdc |
-| 架构/编码/审查 | Builder | @.cursor/rules/builder.mdc |
-| 门禁/评审 | Reviewer | @.cursor/rules/reviewer.mdc |
-| 测试/部署/验收 | Shipper | @.cursor/rules/shipper.mdc |
-| 项目管理/复盘 | Keeper | @.cursor/rules/keeper.mdc |
+| 需求/方案/PRD | 需求规范师（Spec-Writer） | @.cursor/rules/spec-writer.mdc |
+| 架构/编码/审查 | 构建师（Builder） | @.cursor/rules/builder.mdc |
+| 门禁/评审 | 审查师（Reviewer） | @.cursor/rules/reviewer.mdc |
+| 测试/部署/验收 | 交付师（Shipper） | @.cursor/rules/shipper.mdc |
+| 项目管理/复盘 | 统筹师（Keeper） | @.cursor/rules/keeper.mdc |
 
 ## HITL 强制点
-- D（需求共识）：L3 → Cursor Agent Plan Mode + 人审
-- S（方案/架构）：L3 → Plan + 人审
-- Ship（生产部署）：L4 → Plan + 多人签
+- 需求阶段（需求共识）：L3 → Cursor Agent Plan Mode + 人审
+- 设计阶段（方案/架构）：L3 → Plan + 人审
+- 交付阶段（生产部署）：L4 → Plan + 多人签
 EOF
     ok ".cursorrules"
 
@@ -228,9 +235,9 @@ globs: ["项目文档/**"]
 
 # $role 角色（Cursor 适配）
 
-本角色完整 Playbook 见 03-执行层/01-角色Playbook/。
+本角色完整 Playbook 见 03-执行层/01-工种Playbook/。
 
-按 DSBL 阶段执行：加载上游 handoff → 按模板生成 → 跑 QG → 写下游 handoff。
+按 阶段执行：加载上游 handoff → 按模板生成 → 跑 QG → 写下游 handoff。
 EOF
     done
 
@@ -242,7 +249,7 @@ description: QG-$stage 质量门禁
 globs: ["handoff.yaml"]
 ---
 
-# QG-$stage 检查（详见 01-标准层/03-质量门禁QG-D至QG-Ship.md）
+# QG-$stage 检查（详见 01-标准层/03-质量门禁QG-需求至QG-交付.md）
 
 执行前必须跑完对应 QG checklist 全部 🔴 项。
 EOF

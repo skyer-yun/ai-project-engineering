@@ -244,7 +244,7 @@ function getProperty<TObject, TKey extends keyof TObject>(
 | 场景 | 问题 | 建议 |
 |------|------|------|
 | 多层嵌套循环 | O(n^2) 及以上 | 考虑使用哈希表、排序后双指针等优化 |
-| 频繁的字符串拼接 | 每次创建新对象 | 使用 StringBuilder/StringBuffer/Buffer |
+| 频繁的字符串拼接 | 每次创建新对象 | 使用 String构建师（Builder）/StringBuffer/Buffer |
 | 全量数据加载 | 内存溢出风险 | 分页/流式处理/懒加载 |
 | 递归无终止条件 | 栈溢出 | 改为迭代或增加终止条件 |
 | 不必要的排序 | O(n log n) 开销 | 仅在需要时排序 |

@@ -11,9 +11,9 @@
 | 体系契约 | Cursor 落地形态 |
 |----------|---------------|
 | **5 角色 Playbook** | `.cursor/rules/{role}.mdc`（每角色一份规则文件） |
-| **DSBL 五阶段产物** | `.cursorrules` 引用 [02-产物层/](../02-产物层/) 模板路径 |
+| **五阶段产物** | `.cursorrules` 引用 [02-产物层/](../02-产物层/) 模板路径 |
 | **Loop 微循环（P/A/O/R/E）** | Cursor Agent 模式 + 工作区 checklist 文件 |
-| **质量门禁 QG-D/S/B/Ship** | `.cursor/rules/qg-{stage}.mdc` + Apply 前评审 |
+| **质量门禁 QG-需求/QG-设计/QG-开发/QG-交付** | `.cursor/rules/qg-{stage}.mdc` + Apply 前评审 |
 | **阶段交接契约 YAML** | `handoff.yaml` 提交到 git 工作区 |
 | **HITL In/On/Fallback** | Cursor Agent Plan Mode = In；Diff 评审 = On；Yolo 自动 = Fallback |
 | **上下文工程四原则** | @file 引用 = Select；会话折叠 = Compress；多 chat = Isolate |
@@ -62,9 +62,9 @@ globs: ["项目文档/**", "src/**", "handoff.yaml"]
 
 ## 强制契约（来自 ai-project-engineering 体系）
 
-- 阶段定义：见 01-标准层/01-DSBL五阶段定义.md
+- 阶段定义：见 01-标准层/01-五阶段定义.md
 - Loop 微循环：见 01-标准层/02-Loop微循环规范.md
-- 质量门禁：见 01-标准层/03-质量门禁QG-D至QG-Ship.md
+- 质量门禁：见 01-标准层/03-质量门禁QG-需求至QG-交付.md
 - 交接契约：见 01-标准层/04-阶段交接契约Schema.md
 - HITL 规则：见 03-执行层/03-HITL规则表.md
 
@@ -72,21 +72,21 @@ globs: ["项目文档/**", "src/**", "handoff.yaml"]
 
 | 用户意图 | 切换角色 | 加载规则文件 |
 |---------|---------|------------|
-| 需求 / 方案 / PRD | Spec-Writer | @.cursor/rules/spec-writer.mdc |
-| 架构 / 编码 / 审查 | Builder | @.cursor/rules/builder.mdc |
-| 质量门禁 / 评审 | Reviewer | @.cursor/rules/reviewer.mdc |
-| 测试 / 部署 / 验收 | Shipper | @.cursor/rules/shipper.mdc |
-| 项目管理 / 复盘 | Keeper | @.cursor/rules/keeper.mdc |
+| 需求 / 方案 / PRD | 需求规范师（Spec-Writer） | @.cursor/rules/spec-writer.mdc |
+| 架构 / 编码 / 审查 | 构建师（Builder） | @.cursor/rules/builder.mdc |
+| 质量门禁 / 评审 | 审查师（Reviewer） | @.cursor/rules/reviewer.mdc |
+| 测试 / 部署 / 验收 | 交付师（Shipper） | @.cursor/rules/shipper.mdc |
+| 项目管理 / 复盘 | 统筹师（Keeper） | @.cursor/rules/keeper.mdc |
 
 ## HITL 强制点（不可跳过）
 
-- D 阶段需求共识：L3 → Cursor Agent Plan Mode + 人审
-- S 阶段方案/架构：L3 → Plan + 人审
-- Ship 阶段生产部署：L4 → Plan + 多人签
+- 需求阶段需求共识：L3 → Cursor Agent Plan Mode + 人审
+- 设计阶段方案/架构：L3 → Plan + 人审
+- 交付阶段生产部署：L4 → Plan + 多人签
 
 ## 阶段切换规则
 
-每完成一个 DSBL 阶段：
+每完成一个 阶段：
 1. 跑对应 QG checklist（@.cursor/rules/qg-{stage}.mdc）
 2. 写 handoff.yaml
 3. git 提交，@加载下游角色规则
@@ -109,16 +109,16 @@ globs: ["项目文档/**", "src/**", "handoff.yaml"]
 
 ---
 
-## 五、典型 DSBL × Cursor 工作流
+## 五、典型 Cursor 工作流
 
-### D-Discover
+### 需求
 
 ```
 打开 Cursor → 新 chat
   ↓
 「按 .cursor/rules/spec-writer.mdc 起草需求分析」
   ↓
-Cursor 加载 spec-writer.mdc → 读 02-产物层/D-Discover/需求分析报告模板.md
+Cursor 加载 spec-writer.mdc → 读 02-产物层/需求/需求分析报告模板.md
   ↓
 Agent Plan 模式起草大纲 → 人审 Apply
   ↓
@@ -127,10 +127,10 @@ Eval（requirement_completeness ≥ 0.9）
 写 handoff.yaml（from_stage=D, to_stage=S）
 ```
 
-### B-Build（Cursor 强项）
+### 开发（Cursor 强项）
 
 ```
-Builder.mdc + 源码 globs
+构建师（Builder）.mdc + 源码 globs
   ↓
 关键模块：Cursor Agent Plan Mode（HITL-In）
 样板代码：Cursor Tab 自动补全（Fallback）
@@ -182,8 +182,8 @@ handoff.yaml（from_stage=Ship, to_stage=L）
 
 ## 八、常见问题
 
-**Q：Cursor 是否适合做 D/Ship 阶段？**
-A：Cursor 强在 B 阶段（编码）。D（需求）和 Ship（部署）建议配合外部工具或 Claude-Code/Codex，Cursor 做 Editor + Apply。
+**Q：Cursor 是否适合做 D/交付阶段？**
+A：Cursor 强在 开发阶段（编码）。D（需求）和 Ship（部署）建议配合外部工具或 Claude-Code/Codex，Cursor 做 Editor + Apply。
 
 **Q：能否只用 .cursorrules 不写 .mdc？**
 A：可以（最小化部署）。但建议拆 .mdc，按角色 + QG 分别加载，避免主文件过长。

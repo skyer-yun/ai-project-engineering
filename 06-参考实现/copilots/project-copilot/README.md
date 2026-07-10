@@ -1,12 +1,12 @@
 # Project Copilot
 
-> AI 项目管理全能副驾驶 -- 全生命周期管理 DSBL 五阶段（D/S/B/Ship/L），跨智能体协调，质量门禁
+> AI 项目管理全能副驾驶 -- 全生命周期管理 五阶段（需求/设计/开发/交付/复盘），跨智能体协调，质量门禁
 
 ---
 
 ## 1. 这是什么
 
-Project Copilot 是一个**项目管理智能体**，覆盖项目全生命周期（DSBL 五阶段（D/S/B/Ship/L）），并作为总控协调其他 5 个智能体。
+Project Copilot 是一个**项目管理智能体**，覆盖项目全生命周期（五阶段（需求/设计/开发/交付/复盘）），并作为总控协调其他 5 个智能体。
 
 ### 核心理念
 
@@ -18,11 +18,11 @@ Project Copilot 是一个**项目管理智能体**，覆盖项目全生命周期
 
 | 智能体 | 覆盖阶段 | 协调方式 |
 |--------|---------|---------|
-| pre-sales-copilot | N1-N3 | 接收需求确认书 + 技术方案 |
-| product-copilot | N4-N7 | 接收 PRD + Demo + 设计规范 |
-| dev-copilot | N5-N9 | 接收源码 + 接口文档 + 联调报告 |
-| testing-copilot | N10-N12 | 接收测试报告 + 缺陷清单 |
-| delivery-copilot | N13-N15 | 接收交付文档包 + 验收报告 |
+| pre-sales-copilot | 需求阶段（理解+分析+方案） | 接收需求确认书 + 技术方案 |
+| product-copilot | 需求确认→设计前半 | 接收 PRD + Demo + 设计规范 |
+| dev-copilot | 设计后半+开发 | 接收源码 + 接口文档 + 联调报告 |
+| testing-copilot | 开发末+测试 | 接收测试报告 + 缺陷清单 |
+| delivery-copilot | 交付后半 | 接收交付文档包 + 验收报告 |
 
 ---
 
@@ -49,7 +49,7 @@ Project Copilot 是一个**项目管理智能体**，覆盖项目全生命周期
 │   ├── project-types/                 #   项目类型速查
 │   │   └── README.md                  #     4 类型
 │   └── quality-gates/                 #   质量门禁
-│       └── README.md                  #     QG-D/S/B/Ship 检查项
+│       └── README.md                  #     QG-需求/QG-设计/QG-开发/QG-交付 检查项
 │
 └── memory/
     └── preferences.md                 #   用户偏好
@@ -82,28 +82,28 @@ cp -r 07-project-copilot/ ~/.claude/skills/project-copilot/
 ```
 项目全生命周期智能体编排：
 
-N1-N3 售前阶段 → pre-sales-copilot
-  ↓ QG-D（规划就绪）
-N4-N7 产品阶段 → product-copilot
-  ↓ QG-S（需求/设计就绪）
-N5-N9 开发阶段 → dev-copilot
-  ↓ QG-B（开发完成）
-N10-N12 测试阶段 → testing-copilot
-  ↓ QG-Ship（测试通过）
-N13-N15 交付阶段 → delivery-copilot
-  ↓ QG-Ship（交付完成）
-N16 结项 → project-copilot
+需求阶段（理解+分析+方案） 售前阶段 → pre-sales-copilot
+  ↓ QG-需求（规划就绪）
+需求确认→设计前半 产品阶段 → product-copilot
+  ↓ QG-设计（需求/设计就绪）
+设计后半+开发 开发阶段 → dev-copilot
+  ↓ QG-开发（开发完成）
+开发末+测试 测试阶段 → testing-copilot
+  ↓ QG-交付（测试通过）
+交付后半 交付阶段 → delivery-copilot
+  ↓ QG-交付（交付完成）
+结项 → project-copilot
 ```
 
 ### 交接产物清单
 
 | 交接点 | 产物 | 来源 → 目标 |
 |--------|------|------------|
-| QG-D | 需求确认书 + 技术方案 | pre-sales → product |
-| QG-S | PRD + Demo + 设计规范 | product → dev |
-| QG-B | 源码 + 接口文档 + 联调报告 | dev → testing |
-| QG-Ship | 测试报告 + 缺陷清单(清零) | testing → delivery |
-| QG-Ship | 交付文档包 + 验收报告 | delivery → project |
+| QG-需求 | 需求确认书 + 技术方案 | pre-sales → product |
+| QG-设计 | PRD + Demo + 设计规范 | product → dev |
+| QG-开发 | 源码 + 接口文档 + 联调报告 | dev → testing |
+| QG-交付 | 测试报告 + 缺陷清单(清零) | testing → delivery |
+| QG-交付 | 交付文档包 + 验收报告 | delivery → project |
 
 ---
 

@@ -1,6 +1,6 @@
 # 项目规划工作流
 
-> 覆盖阶段：N2-N3（项目规划）
+> 覆盖阶段：需求（分析+方案）（项目规划）
 > 对应角色：规划师
 
 ---
@@ -166,11 +166,11 @@
     部署上线       :e1, after d1, 3d
     验收           :e2, after e1, 5d
 
-    里程碑 QG-D    :milestone, after a2, 0d
-    里程碑 QG-S    :milestone, after b2, 0d
-    里程碑 QG-B    :milestone, after c3, 0d
-    里程碑 QG-Ship    :milestone, after d1, 0d
-    里程碑 QG-Ship    :milestone, after e2, 0d
+    里程碑 QG-需求    :milestone, after a2, 0d
+    里程碑 QG-设计    :milestone, after b2, 0d
+    里程碑 QG-开发    :milestone, after c3, 0d
+    里程碑 QG-交付    :milestone, after d1, 0d
+    里程碑 QG-交付    :milestone, after e2, 0d
   ```
 
 ### Stage 4: 风险规划

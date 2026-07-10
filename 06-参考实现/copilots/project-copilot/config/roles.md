@@ -183,6 +183,6 @@
 
 协调员视角：
   - 影响范围：延迟影响 testing-copilot 和 delivery-copilot 启动时间
-  - 门禁影响：QG-B 交付时间需后移
+  - 门禁影响：QG-开发 交付时间需后移
   - 协调建议：通知 testing-copilot 调整测试策略排期
 ```

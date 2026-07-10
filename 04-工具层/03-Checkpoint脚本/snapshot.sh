@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # snapshot.sh — 部署前/节点出口 快照工具
-# 配合 QG-B/QG-Ship 部署门禁使用，详见 ../../01-标准层/03-质量门禁QG-D/S/B/Ship.md
+# 配合 QG-开发/QG-交付 部署门禁使用，详见 ../../01-标准层/03-质量门禁QG-需求至QG-交付.md
 #
 # 用法：
 #   ./snapshot.sh --type {deploy|node} --node {B|B|Ship|...} --tag <tag-name>
@@ -42,8 +42,8 @@ snapshot.sh — Checkpoint 快照工具
   ./snapshot.sh test
 
 选项：
-  --type <deploy|node>   快照类型（deploy=生产部署前 / node=N 节点出口）
-  --node <NX>            N 节点编号（全程）
+  --type <deploy|node>   快照类型（deploy=生产部署前 / node=阶段出口）
+  --node <NX>            阶段编号（全程）
   --tag <name>           快照标签（人类可读）
   --help                 显示帮助
 

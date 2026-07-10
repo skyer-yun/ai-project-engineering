@@ -23,9 +23,9 @@
 ### 1. 体系是契约，工具是执行者
 
 体系定义：
-- **DSBL 五阶段**（D/S/B/Ship/L）
+- **五阶段**（需求/设计/开发/交付/复盘）
 - **Loop 微循环**（Plan/Act/Observe/Reflect/Exit）
-- **质量门禁**（QG-D/S/B/Ship）
+- **质量门禁**（QG-需求/QG-设计/QG-开发/QG-交付）
 - **交接契约**（YAML Schema）
 - **HITL 模式**（In/On/Fallback）
 - **产物模板**（markdown 格式）
@@ -38,13 +38,13 @@
 
 ### 2. 1 角色 = 多工具可承担
 
-- Spec-Writer 可同时用 Claude Code + Codex
-- Builder 可用 Cursor 写代码 + Claude Code 跑审查
+- 需求规范师（Spec-Writer） 可同时用 Claude Code + Codex
+- 构建师（Builder） 可用 Cursor 写代码 + Claude Code 跑审查
 - 用户自选组合，体系不强求
 
 ### 3. 1 工具 = 多角色可承担
 
-- 同一 Claude Code 会话可切换角色（Spec-Writer → Builder）
+- 同一 Claude Code 会话可切换角色（需求规范师（Spec-Writer） → 构建师（Builder））
 - 同一 copilot 可跨阶段（详见 [06-参考实现/](../06-参考实现/)）
 
 ### 4. 适配是双向的

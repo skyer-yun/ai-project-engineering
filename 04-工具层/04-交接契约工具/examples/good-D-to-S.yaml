@@ -14,10 +14,10 @@ handoff:
 
   output_artifacts:
     - name: "需求分析报告"
-      path: "项目文档/DEMO-2026/D-Discover/需求分析报告-v1.0.md"
+      path: "项目文档/DEMO-2026/需求/需求分析报告-v1.0.md"
       version: "v1.0"
     - name: "干系人清单"
-      path: "项目文档/DEMO-2026/D-Discover/干系人清单-v1.0.md"
+      path: "项目文档/DEMO-2026/需求/干系人清单-v1.0.md"
       version: "v1.0"
 
   loop_signs:

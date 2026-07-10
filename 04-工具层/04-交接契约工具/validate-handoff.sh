@@ -1,51 +1,50 @@
 #!/usr/bin/env bash
-# validate-signature.sh — 交接契约引用 YAML 校验工具
-# 协议权威源：../../01-标准层/06-交接契约引用协议.md
+# validate-handoff.sh — 阶段交接契约 YAML 校验工具
+# 协议权威源：../../01-标准层/04-阶段交接契约Schema.md
 #
 # 用法：
-#   ./validate-signature.sh <file.yaml>
-#   ./validate-signature.sh examples/good.yaml
-#   ./validate-signature.sh --batch loop-signatures/    # 批量校验目录
-#   ./validate-signature.sh --help
+#   ./validate-handoff.sh <file.yaml>
+#   ./validate-handoff.sh examples/good-D-to-S.yaml
+#   ./validate-handoff.sh --batch 项目文档/DEMO/_handoffs/
+#   ./validate-handoff.sh --help
 #
-# 校验项：
-#   1. 必填字段（node / iteration / agent / input/output_artifacts / eval_scores / reflect_passed / exit_met）
-#   2. 字段类型（iteration 是整数 / *_passed 是 bool / eval_scores 是 map）
-#   3. 节点编号合法（全程）
-#   4. agent 名合法（6 copilot 之一）
-#   5. exit_met=true 时 handoff_to 必填
-#   6. 历史对比（可选，与上一份 signature 比较 node 是否递进）
+# 校验项（详见 Schema §四 下游读取规则）：
+#   1. 必填字段：handoff.{schema_version, project, from_stage, to_stage, quality_gate, gate_status,
+#                  output_artifacts, loop_signs, handoff, hitl_signature}
+#   2. from_stage / to_stage 合法：D / S / B / Ship / L（或中文别名 需求/设计/开发/交付/复盘）
+#   3. quality_gate 合法：QG-D / QG-S / QG-B / QG-Ship（或中文 QG-需求 等）
+#   4. gate_status = passed / failed / escalated
+#   5. loop_signs[].{iterations ≤ 5, exit_met = true, reflect_passed = true}
+#   6. hitl_signature.{mode, approved_by} 齐全
+#   7. output_artifacts[].{name, path, version} 必填
+#
+# 退出码：
+#   0 = 全部通过
+#   1 = 参数错误
+#   2 = 缺少依赖（python3/yaml）
+#   3 = 校验失败
 
 set -euo pipefail
 
-# ============ 合法值 ============
-VALID_NODES="D D D S S S B B B Ship Ship Ship Ship Ship Ship L"
-VALID_AGENTS="pre-sales-copilot product-copilot dev-copilot testing-copilot delivery-copilot project-copilot"
-
-# 必填字段（每个 signature 顶层）
-REQUIRED_FIELDS=(node iteration agent input_artifacts output_artifacts eval_scores reflect_passed exit_met)
-
-# ============ 参数解析 ============
-BATCH_MODE=0
-TARGET=""
-
 print_help() {
   cat <<EOF
-validate-signature.sh — 交接契约引用 YAML 校验
+validate-handoff.sh — 阶段交接契约 YAML 校验
 
 用法：
-  ./validate-signature.sh <file.yaml>           # 单文件校验
-  ./validate-signature.sh --batch <dir>         # 批量校验目录所有 yaml
-  ./validate-signature.sh --help
+  ./validate-handoff.sh <file.yaml>           # 单文件校验
+  ./validate-handoff.sh --batch <dir>         # 批量校验目录所有 yaml
+  ./validate-handoff.sh --help
 
 退出码：
   0 = 全部通过
   1 = 参数错误
   2 = 缺少依赖（python3/yaml）
-  3 = 校验失败（含错误数）
+  3 = 校验失败
 EOF
 }
 
+BATCH_MODE=0
+TARGET=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --batch) BATCH_MODE=1; TARGET="$2"; shift 2 ;;
@@ -61,83 +60,129 @@ if [[ -z "$TARGET" ]]; then
   exit 1
 fi
 
-# ============ 依赖检查 ============
 command -v python3 >/dev/null 2>&1 || { echo "❌ 缺少 python3"; exit 2; }
 python3 -c "import yaml" 2>/dev/null || {
   echo "❌ 缺少 PyYAML，请运行：pip install pyyaml"
   exit 2
 }
 
-# ============ Python 校验逻辑 ============
 read -r -d '' PY_VALIDATE <<'PYEOF' || true
 import sys, os, yaml
 
-VALID_NODES = {f"N{i}" for i in range(1, 17)}
-VALID_AGENTS = {
-    "pre-sales-copilot", "product-copilot", "dev-copilot",
-    "testing-copilot", "delivery-copilot", "project-copilot"
+# 合法值（详见 01-标准层/04-阶段交接契约Schema.md）
+STAGE_ALIASES = {
+    "D": "D", "S": "S", "B": "B", "Ship": "Ship", "L": "L",
+    "需求": "D", "设计": "S", "开发": "B", "交付": "Ship", "复盘": "L",
 }
-REQUIRED_FIELDS = ["node", "iteration", "agent", "input_artifacts",
-                   "output_artifacts", "eval_scores",
-                   "reflect_passed", "exit_met"]
+QG_ALIASES = {
+    "QG-D": "QG-D", "QG-S": "QG-S", "QG-B": "QG-B", "QG-Ship": "QG-Ship",
+    "QG-需求": "QG-D", "QG-设计": "QG-S", "QG-开发": "QG-B", "QG-交付": "QG-Ship",
+}
+GATE_STATUS = {"passed", "failed", "escalated"}
+HITL_MODE = {"In", "On", "Fallback"}
 
-def validate_signature(name, data, errors):
-    """校验单个 signature 顶层 dict"""
+REQUIRED_TOP = ["schema_version", "project", "from_stage", "to_stage",
+                "quality_gate", "gate_status", "output_artifacts",
+                "loop_signs", "handoff", "hitl_signature"]
+
+def err(name, msg, errors):
+    errors.append(f"{name}: {msg}")
+
+def validate_one(name, data, errors):
     if not isinstance(data, dict):
-        errors.append(f"{name}: 顶层必须是 dict，实际是 {type(data).__name__}")
+        err(name, f"顶层必须是 dict，实际是 {type(data).__name__}", errors)
         return
 
-    # 必填字段
-    for f in REQUIRED_FIELDS:
+    # 1. 必填字段
+    for f in REQUIRED_TOP:
         if f not in data:
-            errors.append(f"{name}: 缺少必填字段 `{f}`")
+            err(name, f"缺少必填字段 `handoff.{f}`", errors)
 
-    # 节点合法性
-    node = data.get("node")
-    if node and node not in VALID_NODES:
-        errors.append(f"{name}: 非法 node `{node}`，合法值：{sorted(VALID_NODES)}")
+    # 2. stage 合法
+    for f in ("from_stage", "to_stage"):
+        v = data.get(f)
+        if v and v not in STAGE_ALIASES:
+            err(name, f"非法 {f}=`{v}`，合法值：{sorted(STAGE_ALIASES)}", errors)
 
-    # agent 合法性
-    agent = data.get("agent")
-    if agent and agent not in VALID_AGENTS:
-        errors.append(f"{name}: 非法 agent `{agent}`，合法值：{sorted(VALID_AGENTS)}")
+    # 3. quality_gate 合法
+    qg = data.get("quality_gate")
+    if qg and qg not in QG_ALIASES:
+        err(name, f"非法 quality_gate=`{qg}`，合法值：{sorted(QG_ALIASES)}", errors)
 
-    # iteration 类型
-    it = data.get("iteration")
-    if it is not None:
-        if not isinstance(it, int) or it < 1:
-            errors.append(f"{name}: iteration 必须是正整数，实际：{it!r}")
+    # 4. gate_status 合法
+    gs = data.get("gate_status")
+    if gs and gs not in GATE_STATUS:
+        err(name, f"非法 gate_status=`{gs}`，合法值：{sorted(GATE_STATUS)}", errors)
 
-    # bool 字段
-    for bf in ("reflect_passed", "exit_met"):
-        v = data.get(bf)
-        if v is not None and not isinstance(v, bool):
-            errors.append(f"{name}: {bf} 必须是 bool，实际：{v!r}")
+    # 5. output_artifacts
+    oarts = data.get("output_artifacts")
+    if oarts is not None:
+        if not isinstance(oarts, list):
+            err(name, "output_artifacts 必须是 list", errors)
+        else:
+            for i, a in enumerate(oarts):
+                if not isinstance(a, dict):
+                    err(name, f"output_artifacts[{i}] 必须是 dict", errors)
+                else:
+                    for k in ("name", "path", "version"):
+                        if k not in a:
+                            err(name, f"output_artifacts[{i}] 缺少 `{k}`", errors)
 
-    # exit_met=true 时 handoff_to 必填
-    if data.get("exit_met") is True and not data.get("handoff_to"):
-        errors.append(f"{name}: exit_met=true 时 handoff_to 必填")
+    # 6. loop_signs
+    ls = data.get("loop_signs")
+    if ls is not None:
+        if not isinstance(ls, list):
+            err(name, "loop_signs 必须是 list", errors)
+        else:
+            for i, s in enumerate(ls):
+                if not isinstance(s, dict):
+                    err(name, f"loop_signs[{i}] 必须是 dict", errors)
+                    continue
+                it = s.get("iterations")
+                if isinstance(it, int) and it > 5:
+                    err(name, f"loop_signs[{i}].iterations={it} 超阈值（≤5，超出升级）", errors)
+                if s.get("exit_met") is not True:
+                    err(name, f"loop_signs[{i}].exit_met 必须为 true", errors)
+                if s.get("reflect_passed") is not True:
+                    err(name, f"loop_signs[{i}].reflect_passed 必须为 true", errors)
+                stg = s.get("stage")
+                if stg and stg not in STAGE_ALIASES:
+                    err(name, f"loop_signs[{i}].stage=`{stg}` 非法", errors)
 
-    # eval_scores 必须是 map
-    es = data.get("eval_scores")
-    if es is not None and not isinstance(es, dict):
-        errors.append(f"{name}: eval_scores 必须是 map（dict），实际：{type(es).__name__}")
+    # 7. handoff role
+    ho = data.get("handoff")
+    if ho is not None:
+        if not isinstance(ho, dict):
+            err(name, "handoff 必须是 dict", errors)
+        else:
+            for k in ("to_role", "from_role"):
+                if k not in ho:
+                    err(name, f"handoff.{k} 必填", errors)
 
-    # artifacts 必须是 list
-    for af in ("input_artifacts", "output_artifacts"):
-        a = data.get(af)
-        if a is not None and not isinstance(a, list):
-            errors.append(f"{name}: {af} 必须是 list，实际：{type(a).__name__}")
-        elif isinstance(a, list):
-            for i, item in enumerate(a):
-                if not isinstance(item, dict):
-                    errors.append(f"{name}: {af}[{i}] 必须是 dict")
-                elif "name" not in item or "path" not in item:
-                    errors.append(f"{name}: {af}[{i}] 缺少 name 或 path")
+    # 8. hitl_signature
+    hs = data.get("hitl_signature")
+    if hs is not None:
+        if not isinstance(hs, dict):
+            err(name, "hitl_signature 必须是 dict", errors)
+        else:
+            mode = hs.get("mode")
+            if mode and mode not in HITL_MODE:
+                err(name, f"hitl_signature.mode=`{mode}` 非法（In/On/Fallback）", errors)
+            ap = hs.get("approved_by")
+            if ap is not None:
+                if not isinstance(ap, list) or len(ap) == 0:
+                    err(name, "hitl_signature.approved_by 必须是非空 list", errors)
+                else:
+                    for j, m in enumerate(ap):
+                        if not isinstance(m, dict):
+                            err(name, f"approved_by[{j}] 必须是 dict", errors)
+                        else:
+                            for k in ("role", "name", "timestamp"):
+                                if k not in m:
+                                    err(name, f"approved_by[{j}] 缺少 `{k}`", errors)
 
 
 def validate_file(filepath):
-    """校验单个文件，可能含多个 signature"""
     errors = []
     try:
         with open(filepath, "r", encoding="utf-8") as f:
@@ -145,7 +190,6 @@ def validate_file(filepath):
     except Exception as e:
         return [f"读取失败：{e}"]
 
-    # 跳过纯注释/空文件
     stripped = "\n".join(l for l in content.split("\n")
                         if l.strip() and not l.lstrip().startswith("#"))
     if not stripped:
@@ -159,22 +203,16 @@ def validate_file(filepath):
     if data is None:
         return [f"空文件：{filepath}"]
 
-    if isinstance(data, dict):
-        # 文件含单个 signature（无顶层 key）或多 signature（有顶层 key）
-        # 判断：有 node 字段就当单 signature
-        if "node" in data:
-            validate_signature(filepath, data, errors)
+    if isinstance(data, dict) and "handoff" in data:
+        validate_one(filepath, data["handoff"], errors)
+    elif isinstance(data, dict):
+        # 容错：直接以 handoff 字段集为顶层
+        if "from_stage" in data or "to_stage" in data:
+            validate_one(filepath, data, errors)
         else:
-            # 多 signature 文件，每个顶层 key 是一个 signature
-            for k, v in data.items():
-                if isinstance(v, dict):
-                    validate_signature(f"{filepath}::{k}", v, errors)
-                # 跳过 alias anchor（*xxx）
-    elif isinstance(data, list):
-        for i, item in enumerate(data):
-            validate_signature(f"{filepath}[{i}]", item, errors)
+            errors.append(f"{filepath}: 未找到 `handoff` 顶层 key")
     else:
-        errors.append(f"{filepath}: 顶层必须是 dict 或 list")
+        errors.append(f"{filepath}: 顶层必须是 dict")
 
     return errors
 
@@ -199,9 +237,7 @@ def main():
         files = [target]
 
     total_errors = 0
-    total_files = 0
     for fp in files:
-        total_files += 1
         errs = validate_file(fp)
         if errs:
             total_errors += len(errs)
@@ -211,18 +247,17 @@ def main():
         else:
             print(f"[OK]   {fp}")
 
-    print(f"\n" + "=" * 50)
+    print("\n" + "=" * 50)
     if total_errors == 0:
-        print(f"PASS: all {total_files} file(s) valid")
+        print(f"PASS: all {len(files)} file(s) valid")
         return 0
     else:
-        print(f"FAIL: {total_errors} error(s) across {total_files} file(s)")
+        print(f"FAIL: {total_errors} error(s) across {len(files)} file(s)")
         return 3
 
 sys.exit(main())
 PYEOF
 
-# ============ 执行 ============
 if [[ $BATCH_MODE -eq 1 ]]; then
   python3 -c "$PY_VALIDATE" "$TARGET" "batch"
 else

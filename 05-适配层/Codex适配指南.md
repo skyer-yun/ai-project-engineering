@@ -10,10 +10,10 @@
 
 | 体系契约 | Codex 落地形态 |
 |----------|---------------|
-| **5 角色 Playbook** | 5 份 `AGENTS.md`（Spec-Writer/Builder/Reviewer/Shipper/Keeper） |
-| **DSBL 五阶段产物** | `AGENTS.md` 引用 [02-产物层/](../02-产物层/) 模板路径 |
+| **5 角色 Playbook** | 5 份 `AGENTS.md`（需求规范师（Spec-Writer）/构建师（Builder）/审查师（Reviewer）/交付师（Shipper）/统筹师（Keeper）） |
+| **五阶段产物** | `AGENTS.md` 引用 [02-产物层/](../02-产物层/) 模板路径 |
 | **Loop 微循环（P/A/O/R/E）** | `AGENTS.md` workflow 节 + Copilot Workspace 的 Plan/Apply 双态 |
-| **质量门禁 QG-D/S/B/Ship** | `AGENTS.md` checklist + 工程 CI 关卡 |
+| **质量门禁 QG-需求/QG-设计/QG-开发/QG-交付** | `AGENTS.md` checklist + 工程 CI 关卡 |
 | **阶段交接契约 YAML** | `handoff.yaml` 提交到 git，下游 agent 解析 |
 | **HITL In/On/Fallback** | Copilot Workspace Plan 模式 = In；Diff 评审 = On；Apply = Fallback |
 | **上下文工程四原则** | Context window 管理 = Select/Compress；多 Agent 隔离 = Isolate |
@@ -38,7 +38,7 @@
 │   │   ├── reviewer.md           # 跨阶段
 │   │   ├── shipper.md            # Ship
 │   │   └── keeper.md             # 全程 + L
-│   ├── workflows/                # DSBL 各阶段 workflow
+│   ├── workflows/                # 五阶段 各阶段 workflow
 │   └── handoff-template.yaml     # 交接契约模板（工具中立）
 └── 项目文档/{项目}/              # 产物输出目录
 ```
@@ -54,9 +54,9 @@
 
 ## 强制契约（来自 ai-project-engineering 体系）
 
-- 阶段定义：见 01-标准层/01-DSBL五阶段定义.md
+- 阶段定义：见 01-标准层/01-五阶段定义.md
 - Loop 微循环：见 01-标准层/02-Loop微循环规范.md
-- 质量门禁：见 01-标准层/03-质量门禁QG-D至QG-Ship.md
+- 质量门禁：见 01-标准层/03-质量门禁QG-需求至QG-交付.md
 - 交接契约：见 01-标准层/04-阶段交接契约Schema.md
 - HITL 规则：见 03-执行层/03-HITL规则表.md
 
@@ -64,24 +64,24 @@
 
 | 用户意图 | 切换到角色 | 加载 |
 |---------|----------|------|
-| 需求 / 方案 / PRD | Spec-Writer | .codex/roles/spec-writer.md |
-| 架构 / 详设 / 编码 / 审查 | Builder | .codex/roles/builder.md |
-| 质量门禁 / 评审 | Reviewer | .codex/roles/reviewer.md |
-| 测试 / 部署 / 验收 / 培训 | Shipper | .codex/roles/shipper.md |
-| 项目管理 / 复盘 / 知识沉淀 | Keeper | .codex/roles/keeper.md |
+| 需求 / 方案 / PRD | 需求规范师（Spec-Writer） | .codex/roles/spec-writer.md |
+| 架构 / 详设 / 编码 / 审查 | 构建师（Builder） | .codex/roles/builder.md |
+| 质量门禁 / 评审 | 审查师（Reviewer） | .codex/roles/reviewer.md |
+| 测试 / 部署 / 验收 / 培训 | 交付师（Shipper） | .codex/roles/shipper.md |
+| 项目管理 / 复盘 / 知识沉淀 | 统筹师（Keeper） | .codex/roles/keeper.md |
 
 ## 阶段切换规则
 
-每完成一个 DSBL 阶段，必须：
-1. 跑对应 QG checklist（D/S/B/Ship）
+每完成一个 阶段，必须：
+1. 跑对应 QG checklist（需求/设计/开发/交付）
 2. 写 handoff.yaml（schema 见 01-标准层/04）
 3. 提交到 git，通知下游角色加载
 
 ## HITL 强制点
 
-- D 阶段（需求共识）：L3 不可逆 → HITL-In（Plan 模式 + 人审）
-- S 阶段（方案/架构）：L3 → HITL-In
-- Ship 阶段（生产部署）：L4 → HITL-In + 多人签
+- 需求阶段（需求共识）：L3 不可逆 → HITL-In（Plan 模式 + 人审）
+- 设计阶段（方案/架构）：L3 → HITL-In
+- 交付阶段（生产部署）：L4 → HITL-In + 多人签
 ```
 
 ---
@@ -101,23 +101,23 @@
 
 ---
 
-## 五、典型 DSBL × Codex 工作流
+## 五、典型 Codex 工作流
 
-### D-Discover
+### 需求
 
 ```
 用户对 Codex：「按 .codex/roles/spec-writer.md 起草需求分析」
   ↓
-Codex 加载 spec-writer.md → 读 02-产物层/D-Discover/需求分析报告模板.md
+Codex 加载 spec-writer.md → 读 02-产物层/需求/需求分析报告模板.md
   ↓
 Plan 模式起草大纲 → 人审（Copilot Workspace Plan）
   ↓
 Apply 填充 → Eval（requirement_completeness ≥ 0.9）
   ↓
-写 handoff.yaml（from_stage=D, to_stage=S, QG-D=passed）
+写 handoff.yaml（from_stage=D, to_stage=S, QG-需求=passed）
 ```
 
-### B-Build
+### 开发
 
 ```
 Codex 按 .codex/roles/builder.md
@@ -128,7 +128,7 @@ Codex 按 .codex/roles/builder.md
   ↓
 单测 ≥80% + lint 零严重
   ↓
-handoff.yaml（from_stage=B, to_stage=Ship, QG-B=passed）
+handoff.yaml（from_stage=B, to_stage=Ship, QG-开发=passed）
 ```
 
 ### Ship
@@ -138,7 +138,7 @@ shipper.md + CI/CD 关卡
   ↓
 生产部署 L4 → HITL-In + 多人签
   ↓
-handoff.yaml（from_stage=Ship, to_stage=L, QG-Ship=passed）
+handoff.yaml（from_stage=Ship, to_stage=L, QG-交付=passed）
 ```
 
 ---

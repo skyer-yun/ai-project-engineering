@@ -2,7 +2,7 @@
 name: project-copilot
 version: 1.0
 description: |
-  项目助手 — 全生命周期管理，覆盖 DSBL 五阶段（D/S/B/Ship/L） 全阶段。
+  项目助手 — 全生命周期管理，覆盖 五阶段（需求/设计/开发/交付/复盘） 全阶段。
   WBS/甘特图/进度跟踪/风险管理/质量门禁/跨智能体协调。
   作为项目总控智能体，协调 pre-sales/product/dev/testing/delivery 五个智能体。
   触发场景：项目启动 / 项目规划 / 进度跟踪 / 风险管理 / 质量门禁 / 跨智能体协调 / 结项总结。
@@ -10,7 +10,7 @@ description: |
 
 # Project Copilot — 项目助手
 
-项目全生命周期编排层，覆盖 DSBL 五阶段（D/S/B/Ship/L） 全阶段，协调 5 个智能体（pre-sales/product/dev/testing/delivery），管理质量门禁。
+项目全生命周期编排层，覆盖 五阶段（需求/设计/开发/交付/复盘） 全阶段，协调 5 个智能体（pre-sales/product/dev/testing/delivery），管理质量门禁。
 
 **不与原生路由竞争**：单一技能即可完成的任务，让原生路由直接处理。本技能聚焦全生命周期管理和跨智能体协调。
 
@@ -103,17 +103,17 @@ description: |
 
 | 智能体 | 覆盖阶段 | 协调方式 |
 |--------|---------|---------|
-| `pre-sales-copilot` | N1-N3（售前/投标/需求收集） | 接收需求确认书 + 技术方案 |
-| `product-copilot` | N4-N7（需求确认/PRD/原型/技术设计） | 接收 PRD + Demo + 设计规范 |
-| `dev-copilot` | N5-N9（开发/联调/代码审查） | 接收源码 + 接口文档 + 联调报告 |
-| `testing-copilot` | N10-N12（测试策略/测试执行） | 接收测试报告 + 缺陷清单 |
-| `delivery-copilot` | N13-N15（部署/验收/交付文档） | 接收交付文档包 + 验收报告 |
+| `pre-sales-copilot` | 需求阶段（理解+分析+方案）（售前/投标/需求收集） | 接收需求确认书 + 技术方案 |
+| `product-copilot` | 需求确认→设计前半（需求确认/PRD/原型/技术设计） | 接收 PRD + Demo + 设计规范 |
+| `dev-copilot` | 设计后半+开发（开发/联调/代码审查） | 接收源码 + 接口文档 + 联调报告 |
+| `testing-copilot` | 开发末+测试（测试策略/测试执行） | 接收测试报告 + 缺陷清单 |
+| `delivery-copilot` | 交付后半（部署/验收/交付文档） | 接收交付文档包 + 验收报告 |
 
 ---
 
 ## 4. 工作流路由
 
-### 4.1 Project Init Workflow (N1)
+### 4.1 Project Init Workflow (需求·理解)
 
 **触发词**：项目启动 / 立项 / 新项目 / 项目初始化
 
@@ -138,7 +138,7 @@ description: |
 
 ---
 
-### 4.2 Project Plan Workflow (N2-N3)
+### 4.2 Project Plan Workflow (需求（分析+方案）)
 
 **触发词**：项目规划 / WBS / 排期 / 甘特图 / 项目计划
 
@@ -163,7 +163,7 @@ description: |
 
 ---
 
-### 4.3 Project Track Workflow (N4-N12)
+### 4.3 Project Track Workflow (项目执行与跟踪)
 
 **触发词**：进度更新 / 偏差分析 / 风险监控 / 变更管理 / 项目周报
 
@@ -181,7 +181,7 @@ description: |
 
 ---
 
-### 4.4 Project Close Workflow (N16)
+### 4.4 Project Close Workflow (复盘)
 
 **触发词**：结项 / 项目收尾 / 经验总结 / 归档
 
@@ -206,11 +206,11 @@ description: |
 
 | 门禁 | 位置 | 检查内容 | 检查项数 |
 |------|------|---------|---------|
-| QG-D | N3→N4 | 项目规划完成度 | 10 |
-| QG-S | N7→N8 | 需求/设计就绪度 | 12 |
-| QG-B | N10→N11 | 开发完成度 | 8 |
-| QG-Ship | N12→N13 | 测试通过度 | 10 |
-| QG-Ship | N15→N16 | 交付完成度 | 8 |
+| QG-需求 | 需求·方案→需求·确认 | 项目规划完成度 | 10 |
+| QG-设计 | 设计·技术设计→开发·编码 | 需求/设计就绪度 | 12 |
+| QG-开发 | 开发·联调→交付·测试策略 | 开发完成度 | 8 |
+| QG-交付 | 交付·测试执行→交付·部署 | 测试通过度 | 10 |
+| QG-交付 | 交付·文档→复盘 | 交付完成度 | 8 |
 
 ---
 
@@ -240,7 +240,7 @@ knowledge/
 ├── project-types/          # 项目类型速查
 │   └── README.md           # 4 类型：产品开发/售前投标/迭代/自由
 └── quality-gates/          # 质量门禁
-    └── README.md           # QG-D/S/B/Ship + 检查项
+    └── README.md           # QG-需求/QG-设计/QG-开发/QG-交付 + 检查项
 ```
 
 ---
@@ -296,23 +296,23 @@ knowledge/
 
 ---
 
-## 8 体系契约执行约束（DSBL × HITL × QG × 交接契约）
+## 8 体系契约执行约束（HITL × QG × 交接契约）
 
 > **本节为体系强制约束**。来自 [01-标准层/](../../01-标准层/) 与 [00-理论层/](../../00-理论层/) 的权威源，本技能强制执行。
 
-### 8.1 DSBL 阶段覆盖与 HITL 模式
+### 8.1 阶段覆盖与 HITL 模式
 
-本 copilot 承担角色：**Keeper**（见 [03-执行层/01-角色Playbook/Keeper-Playbook.md](../../03-执行层/01-角色Playbook/Keeper-Playbook.md)）
+本 copilot 承担角色：**统筹师（Keeper）**（见 [03-执行层/01-工种Playbook/项目经理-Playbook.md](../../03-执行层/01-工种Playbook/项目经理-Playbook.md)）
 
-覆盖：**DSBL 全程监督 + L-Learn**
+覆盖：**五阶段全程监督 + 复盘**
 
-| DSBL 阶段 | HITL 模式 | 不可逆等级 | 执行细则 |
+| 阶段 | HITL 模式 | 不可逆等级 | 执行细则 |
 |-----------|-----------|-----------|---------|
-| D/S/B/Ship（全程监督） | **On** | L2-L4 | 跨阶段看板 + 风险预警 |
-| L-Learn（复盘） | **In** | L3 | 项目复盘 + 改进项沉淀 |
+| 需求/设计/开发/交付（全程监督） | **On** | L2-L4 | 跨阶段看板 + 风险预警 |
+| 复盘 | **In** | L3 | 项目复盘 + 改进项沉淀 |
 
 > HITL 模式（In/On/Fallback）与不可逆等级（L1-L4）定义见 [00-理论层/03-HITL模式与不可逆性矩阵.md](../../00-理论层/03-HITL模式与不可逆性矩阵.md)。
-> 完整 DSBL × HITL × 角色 交叉矩阵见 [03-执行层/03-HITL规则表.md](../../03-执行层/03-HITL规则表.md)。
+> 完整 HITL × 角色 交叉矩阵见 [03-执行层/03-HITL规则表.md](../../03-执行层/03-HITL规则表.md)。
 
 ### 8.2 阶段交接契约（handoff.yaml）
 
@@ -325,11 +325,11 @@ handoff:
   schema_version: "1.0"
   from_stage: D              # D / S / B / Ship / L（按当前阶段填）
   to_stage: S                # 下一阶段
-  quality_gate: QG-D         # QG-D / QG-S / QG-B / QG-Ship
+  quality_gate: QG-需求         # QG-需求 / QG-设计 / QG-开发 / QG-交付
   gate_status: passed        # passed / failed / escalated
   output_artifacts:
     - name: "产物名"
-      path: "项目文档/{项目}/D-Discover/产物名-v1.0.md"
+      path: "项目文档/{项目}/需求/产物名-v1.0.md"
       version: "v1.0"
   loop_signs:
     - stage: D
@@ -338,8 +338,8 @@ handoff:
       reflect_passed: true
       exit_met: true
   handoff:
-    to_role: "Builder"       # 五角色之一
-    from_role: "Keeper"
+    to_role: "构建师（Builder）"       # 五角色之一
+    from_role: "统筹师（Keeper）"
   tool_used:
     primary: "Claude Code"   # 工具中立，可为 Codex/Cursor/自定义
     adapter: "Claude-Code"
@@ -354,26 +354,26 @@ handoff:
 > Schema 完整细则见 [01-标准层/04-阶段交接契约Schema.md](../../01-标准层/04-阶段交接契约Schema.md)。
 > 模板文件见 [04-工具层/04-交接契约工具/handoff-template.yaml](../../04-工具层/04-交接契约工具/handoff-template.yaml)。
 
-### 8.3 质量门禁（QG-D/S/B/Ship）
+### 8.3 质量门禁（QG-需求/QG-设计/QG-开发/QG-交付）
 
-本 copilot 在对应 DSBL 阶段必须执行以下 QG（不全则 ↩ 回 Loop）：
+本 copilot 在对应 阶段必须执行以下 QG（不全则 ↩ 回 Loop）：
 
-- **QG-D**（D 出口）：需求完整度 ≥0.9 + 干系人签字
-- **QG-S**（S 出口）：方案/PRD/架构/详设 齐全 + 评审通过
-- **QG-B**（B 出口）：单测 ≥80% 行覆盖 + lint 零严重 + P0/P1=0
-- **QG-Ship**（Ship 出口）：回归 Pass + 性能达标 + 验收签字 + 培训完成
+- **QG-需求**（D 出口）：需求完整度 ≥0.9 + 干系人签字
+- **QG-设计**（S 出口）：方案/PRD/架构/详设 齐全 + 评审通过
+- **QG-开发**（B 出口）：单测 ≥80% 行覆盖 + lint 零严重 + P0/P1=0
+- **QG-交付**（Ship 出口）：回归 Pass + 性能达标 + 验收签字 + 培训完成
 
-> 完整 checklist（每门禁 8-12 项 🔴/🟡）见 [01-标准层/03-质量门禁QG-D至QG-Ship.md](../../01-标准层/03-质量门禁QG-D至QG-Ship.md)。
+> 完整 checklist（每门禁 8-12 项 🔴/🟡）见 [01-标准层/03-质量门禁QG-需求至QG-交付.md](../../01-标准层/03-质量门禁QG-需求至QG-交付.md)。
 
 ### 8.4 产物模板引用
 
 产物结构与验收标准强制对齐 [02-产物层/](../../02-产物层/) 对应阶段模板：
 
-- D-Discover：[02-产物层/D-Discover/](../../02-产物层/D-Discover/)
-- S-Spec：[02-产物层/S-Spec/](../../02-产物层/S-Spec/)
-- B-Build：[02-产物层/B-Build/](../../02-产物层/B-Build/)
-- Ship：[02-产物层/S-Ship/](../../02-产物层/S-Ship/)
-- L-Learn：[02-产物层/L-Learn/](../../02-产物层/L-Learn/)
+- 需求：[02-产物层/需求/](../../02-产物层/需求/)
+- 设计：[02-产物层/设计/](../../02-产物层/设计/)
+- 开发：[02-产物层/开发/](../../02-产物层/开发/)
+- Ship：[02-产物层/交付/](../../02-产物层/交付/)
+- 复盘：[02-产物层/复盘/](../../02-产物层/复盘/)
 
 本技能不得偏离模板章节结构。
 
