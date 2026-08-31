@@ -90,7 +90,7 @@ handoff:
 #   - 必备产物：产品方案 / 原型四件套（页面树+原型包+标注数据+原型说明）/
 #     PRD / 架构设计 / 详细设计 / 验收标准清单（AC-NNN）
 #   - 关键 Eval：prd_completeness = 1.0 / ac_testable_rate ≥ 0.95 /
-#     requirement_solution_coverage = 1.0 / p0_annotation_coverage = 1.0
+#     requirement_solution_coverage = 1.0 / requirement_annotation_coverage = 1.0（全量需求）
 #   - HITL：In + L3（架构评审必备）
 #   - from_role: Spec-Writer / to_role: Builder
 #
