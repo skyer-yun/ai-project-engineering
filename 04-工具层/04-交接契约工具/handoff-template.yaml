@@ -78,15 +78,19 @@ handoff:
 #
 # ▶ 需求 → 设计（D → S）
 #   - quality_gate: QG-D
-#   - 必备产物：需求分析报告 / 干系人清单 / 需求确认书
-#   - 关键 Eval：requirement_completeness ≥ 0.9 / scenario_coverage ≥ 0.9
+#   - 必备产物：需求调研记录（SRC-NNN）/ 需求清单（REQ-NNN）/ 需求分析报告 /
+#     干系人清单 / 需求确认书（基线冻结，客户签）
+#   - 关键 Eval：requirement_completeness ≥ 0.9 / scenario_coverage ≥ 0.9 /
+#     requirement_traceability = 1.0（REQ→SRC 溯源率）
 #   - HITL：In + L3（客户签字必备）
 #   - from_role: Spec-Writer / to_role: Builder
 #
 # ▶ 设计 → 开发（S → B）
 #   - quality_gate: QG-S
-#   - 必备产物：PRD / 原型 Demo / 架构设计 / 详细设计 / 验收标准清单
-#   - 关键 Eval：prd_completeness = 1.0 / ac_testable_rate ≥ 0.9
+#   - 必备产物：产品方案 / 原型四件套（页面树+原型包+标注数据+原型说明）/
+#     PRD / 架构设计 / 详细设计 / 验收标准清单（AC-NNN）
+#   - 关键 Eval：prd_completeness = 1.0 / ac_testable_rate ≥ 0.95 /
+#     requirement_solution_coverage = 1.0 / p0_annotation_coverage = 1.0
 #   - HITL：In + L3（架构评审必备）
 #   - from_role: Spec-Writer / to_role: Builder
 #
